@@ -1,0 +1,5 @@
+netfilterqueue==1.1.0
+scapy==2.5.0
+ud3tn-utils==0.14.0
+prometheus-client==0.20.0
+pyyaml==6.0.1
