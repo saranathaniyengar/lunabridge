@@ -1,27 +1,28 @@
 """
 gateway/n6_interceptor.py
-Day 6: NFQUEUE packet capture skeleton.
-  - Binds to NFQUEUE 0
-  - Prints src/dst IP for every intercepted packet
-  - Issues ACCEPT verdict on every packet (read-only observer, no dropping yet)
+Day 7: NFQUEUE packet capture with DSCP -> TrafficClass classification.
 
-Layer note: this module reads the IP-layer DSCP field (RFC 2474) only.
-It does NOT build BPv7 bundles or assign bundle priority. The DSCP value
-extracted here is later mapped (Day 7, priority_classifier.py) to a gateway
-priority used for QUEUE ORDERING in priority_queue.py. BPv7 (RFC 9171) has
-no in-band priority field, so priority is enforced by the gateway, never by
-the bundle header. Nothing in this file depends on the BP version.
+Changes from Day 6:
+  - __main__ block now passes a callback that resolves and logs the TrafficClass
+  - No other changes to the class itself
+  - Always-ACCEPT-in-finally guarantee unchanged
 
-Prerequisites:
-  1. iptables rule in UPF namespace:
-       iptables -I FORWARD -i ogstun -j NFQUEUE --queue-num 0
-  2. This process shares the UPF network namespace (--net=container:upf)
+Layer note: DSCP (RFC 2474) is read at the IP layer only. No BPv7 bundle work
+here. BPv7 (RFC 9171) has no in-band priority field. Priority is enforced by
+the gateway queue, never by the bundle header.
+
+Prerequisites (each session, not persistent):
+  1. docker exec upf iptables -I FORWARD -i ogstun -j NFQUEUE --queue-num 0
+  2. Run this process in the UPF network namespace (--net=container:upf)
   3. Container started with --privileged
 """
 import logging
 import socket
 from typing import Callable, Optional, Tuple
+
 log = logging.getLogger("lunabridge.n6_interceptor")
+
+
 class N6Interceptor:
     def __init__(
         self,
@@ -34,6 +35,7 @@ class N6Interceptor:
         self._user_callback = callback
         self._nfqueue = None
         self._packet_count = 0
+
     def start(self) -> None:
         try:
             import netfilterqueue
@@ -52,25 +54,26 @@ class N6Interceptor:
             log.info("N6Interceptor interrupted — shutting down")
         finally:
             self._cleanup()
+
     def stop(self) -> None:
         self._cleanup()
+
     def _packet_callback(self, packet) -> None:
         try:
             payload = packet.get_payload()
             src, dst = self._extract_ips(payload)
             dscp = self._extract_dscp(payload)
             self._packet_count += 1
-            log.info("pkt #%d  src=%-17s dst=%-17s dscp=%d  len=%d",
+            log.info("pkt #%d  src=%-17s dst=%-17s dscp=%-2d  len=%d",
                      self._packet_count, src, dst, dscp, len(payload))
-            # Day 7+ seam: callback receives raw IP bytes + DSCP. The gateway
-            # maps DSCP -> priority for queue ordering. No bundle work here.
             if self._user_callback is not None:
                 self._user_callback(payload, dscp)
         except Exception:
             log.exception("Error processing packet — still accepting")
         finally:
-            # Day 6: ALWAYS accept. A missing verdict wedges the kernel queue.
+            # ALWAYS accept. A missing verdict wedges the kernel queue.
             packet.accept()
+
     @staticmethod
     def _extract_ips(payload: bytes) -> Tuple[str, str]:
         if len(payload) < 20:
@@ -78,12 +81,14 @@ class N6Interceptor:
         src = socket.inet_ntoa(payload[12:16])
         dst = socket.inet_ntoa(payload[16:20])
         return src, dst
+
     @staticmethod
     def _extract_dscp(payload: bytes) -> int:
         # IPv4 byte 1 = DS field: top 6 bits DSCP, bottom 2 ECN (RFC 2474)
         if len(payload) < 2:
             return 0
         return (payload[1] >> 2) & 0x3F
+
     def _cleanup(self) -> None:
         if self._nfqueue is not None:
             try:
@@ -92,11 +97,24 @@ class N6Interceptor:
                 pass
             self._nfqueue = None
         log.info("N6Interceptor stopped after %d packets", self._packet_count)
+
+
 if __name__ == "__main__":
     import sys
+    from gateway.priority_classifier import classify_packet
+    from gateway.traffic import spec
+
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s  %(levelname)-8s  %(name)s — %(message)s",
         stream=sys.stdout,
     )
-    N6Interceptor(queue_num=0, interface="ogstun").start()
+
+    def _on_packet(payload: bytes, dscp: int) -> None:
+        """Resolve DSCP to TrafficClass and log it. No bundle work here."""
+        tc = classify_packet(dscp)
+        s = spec(tc)
+        log.info("  -> class=%-12s rank=%d  ttl=%ss  custody=%s",
+                 tc.value, s.rank, int(s.default_ttl_s), s.custody_required)
+
+    N6Interceptor(queue_num=0, interface="ogstun", callback=_on_packet).start()
