@@ -17,8 +17,8 @@ UE (rover) → gNB → Open5GS 5GC → N6 → LunaBridge → BPv7 → µD3TN →
 
 | Phase | Description                        | Status        |
 |-------|------------------------------------|---------------|
-| 0     | 5G core running (Open5GS+UERANSIM) | ✅ Complete    |
-| 1     | N6 interception (NFQUEUE)          | 🔜 Day 6      |
+| 0     | 5G core running (Open5GS+UERANSIM) |  Complete    |
+| 1     | N6 interception (NFQUEUE)          |  Complete    |
 | 2     | µD3TN integration (BPv7)           | 🔜 Day 11     |
 | 3     | Blackout + FSM                     | 🔜 Day 16     |
 | 4     | Priority queue + telemetry         | 🔜 Day 23     |
