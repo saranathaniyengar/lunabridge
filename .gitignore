@@ -53,3 +53,9 @@ logs/
 .coverage
 htmlcov/
 .tox/
+
+# LunaBridge experiment output (Day 9) — telemetry runs are data, not source
+runs/
+
+# Local backups
+*.bak

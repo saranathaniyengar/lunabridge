@@ -1,11 +1,18 @@
 """
 gateway/n6_interceptor.py
 Day 7: NFQUEUE packet capture with DSCP -> TrafficClass classification.
+Day 9: telemetry wiring — per-packet BundleRecord persisted to bundles.jsonl.
 
 Changes from Day 6:
   - __main__ block now passes a callback that resolves and logs the TrafficClass
   - No other changes to the class itself
   - Always-ACCEPT-in-finally guarantee unchanged
+
+Day 9 note: telemetry is OBSERVATIONAL. The BundleRecord write happens inside
+the user callback, which the class invokes inside _packet_callback's try block,
+under the always-ACCEPT-in-finally guarantee. A telemetry failure is caught,
+logged, and the packet is still accepted. No marking, no queue, no transmission,
+no BPv7/CBOR, no uD3TN — records are born PENDING and stay PENDING.
 
 Layer note: DSCP (RFC 2474) is read at the IP layer only. No BPv7 bundle work
 here. BPv7 (RFC 9171) has no in-band priority field. Priority is enforced by
@@ -15,9 +22,13 @@ Prerequisites (each session, not persistent):
   1. docker exec upf iptables -I FORWARD -i ogstun -j NFQUEUE --queue-num 0
   2. Run this process in the UPF network namespace (--net=container:upf)
   3. Container started with --privileged
+  4. Day 9: mount a host volume for run output, e.g.
+       -v ~/LunaBridge/lunabridge/runs:/app/runs
 """
 import logging
+import os          # CHANGED (Day 9): for run_dir path join
 import socket
+import time        # CHANGED (Day 9): ingress_ts + run_id
 from typing import Callable, Optional, Tuple
 
 log = logging.getLogger("lunabridge.n6_interceptor")
@@ -99,10 +110,41 @@ class N6Interceptor:
         log.info("N6Interceptor stopped after %d packets", self._packet_count)
 
 
+# --------------------------------------------------------------------------
+# CHANGED (Day 9): module-level flow_id derivation.
+# Module-level so it is importable and testable OFFLINE without the stack.
+# "prototype 5-tuple-ish, NOT a BPv7 EID" (SESSION_STATE sources table).
+# Contract: NEVER raises. Portless protocols (ICMP) and runt/truncated
+# packets fall back gracefully — required so ICMP test traffic can't crash
+# the observational path.
+# --------------------------------------------------------------------------
+def derive_flow_id(payload: bytes) -> str:
+    if len(payload) < 20:
+        return "malformed"
+    ihl = (payload[0] & 0x0F) * 4
+    proto = payload[9]
+    src = socket.inet_ntoa(payload[12:16])
+    dst = socket.inet_ntoa(payload[16:20])
+    proto_name = {1: "icmp", 6: "tcp", 17: "udp"}.get(proto, str(proto))
+    sport = dport = None
+    if proto in (6, 17) and len(payload) >= ihl + 4:
+        sport = int.from_bytes(payload[ihl:ihl + 2], "big")
+        dport = int.from_bytes(payload[ihl + 2:ihl + 4], "big")
+    if sport is not None:
+        return f"{src}:{sport}-{dst}:{dport}-{proto_name}"
+    return f"{src}-{dst}-{proto_name}"
+
+
+# --------------------------------------------------------------------------
+# CHANGED (Day 9): __main__ wires telemetry into the live capture path.
+# --------------------------------------------------------------------------
 if __name__ == "__main__":
     import sys
+    import itertools
+
     from gateway.priority_classifier import classify_packet
     from gateway.traffic import spec
+    from gateway.telemetry import BundleRecord, TelemetryWriter
 
     logging.basicConfig(
         level=logging.INFO,
@@ -110,11 +152,50 @@ if __name__ == "__main__":
         stream=sys.stdout,
     )
 
+    QUEUE_NUM = 0
+    INTERFACE = "ogstun"
+    RUNS_ROOT = os.environ.get("LUNABRIDGE_RUNS_ROOT", "/app/runs")
+
+    start_time = time.time()
+    run_id = "run-" + time.strftime("%Y%m%dT%H%M%SZ", time.gmtime(start_time))
+    # CHANGED (Day 9): allow explicit run_dir override (reproducible runs +
+    # fault-injection testing). Falls back to RUNS_ROOT/run_id.
+    run_dir = os.environ.get("LUNABRIDGE_RUN_DIR", os.path.join(RUNS_ROOT, run_id))
+
+    config = {
+        "interface": INTERFACE,
+        "queue_num": QUEUE_NUM,
+        "run_id": run_id,
+        "start_time": start_time,
+        "start_time_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ",
+                                        time.gmtime(start_time)),
+        "clock": "container",   # ingress_ts uses container clock (prototype)
+    }
+
+    writer = TelemetryWriter(run_dir, config=config)
+    bundle_seq = itertools.count(1)
+    log.info("Telemetry active — run_id=%s  run_dir=%s", run_id, run_dir)
+
     def _on_packet(payload: bytes, dscp: int) -> None:
-        """Resolve DSCP to TrafficClass and log it. No bundle work here."""
+        """Resolve DSCP -> TrafficClass, log it, and persist one PENDING
+        BundleRecord. Observational only: any failure here is logged and
+        swallowed so the packet is still accepted by the caller's finally."""
         tc = classify_packet(dscp)
         s = spec(tc)
         log.info("  -> class=%-12s rank=%d  ttl=%ss  custody=%s",
                  tc.value, s.rank, int(s.default_ttl_s), s.custody_required)
+        try:
+            rec = BundleRecord(
+                bundle_id=str(next(bundle_seq)),
+                flow_id=derive_flow_id(payload),
+                traffic_class=tc,
+                size_bytes=len(payload),
+                ingress_ts=time.time(),
+            )
+            rec.set_ttl()                 # class default TTL; MEDIA=0 -> exp==ingress
+            writer.write_bundle(rec)
+        except Exception:
+            log.exception("telemetry write failed — packet still accepted")
 
-    N6Interceptor(queue_num=0, interface="ogstun", callback=_on_packet).start()
+    N6Interceptor(queue_num=QUEUE_NUM, interface=INTERFACE,
+                  callback=_on_packet).start()

@@ -10,7 +10,7 @@ Sources:
     U = 100*E + 10*T + 3*Sm + 1*Sb - 1000*E_expired
   - Emergency TTL 300s, science_metadata TTL 24h,
     science_bulk TTL 7d, media TTL 0s: supervisor brief S2-W5b
-  - BPv7 no in-band priority: RFC 9171 Section 4.1.3
+  - BPv7 no in-band priority: RFC 9171 Section 4.3.1
   - DSCP framing: RFC 2474 (IP-layer), RFC 4594 (codepoint names)
   - TS 23.501 Table 5.7.4-1 maps 5QI to QoS characteristics only;
     no DSCP column exists (verified). No normative 5QI->DSCP table exists.
