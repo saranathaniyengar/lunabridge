@@ -19,9 +19,9 @@ UE (rover) → gNB → Open5GS 5GC → N6 → LunaBridge → BPv7 → µD3TN →
 |-------|------------------------------------|---------------|
 | 0     | 5G core running (Open5GS+UERANSIM) |  Complete    |
 | 1     | N6 interception (NFQUEUE)          |  Complete    |
-| 2     | µD3TN integration (BPv7)           | 🔜 Day 11     |
-| 3     | Blackout + FSM                     | 🔜 Day 16     |
-| 4     | Priority queue + telemetry         | 🔜 Day 23     |
-| 5     | Demo hardening                     | 🔜 Day 29     |
+| 2     | µD3TN integration (BPv7)           | 🔜      |
+| 3     | Blackout + FSM                     | 🔜    |
+| 4     | Priority queue + telemetry         | 🔜     |
+| 5     | Demo hardening                     | 🔜     |
 
 See [docs/architecture.md](docs/architecture.md) for system design.
