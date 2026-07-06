@@ -36,11 +36,11 @@ Source notes for component lineage:
   - TerminalState member names: LunaBridge labels for brief-implied concepts.
     No external standard defines these names.
   - BundleRecord lifetime handling: RFC 9171 Sec. 4.3.1 / Sec. 4.4.2.
-  - mission_utility weights: read from traffic.py CLASS_SPECS (single source
-    of truth). The brief S2-W5b formula U = 100E + 10T + 3Sm + 1Sb - 1000E_exp
-    is reproduced exactly when only those four classes carry traffic; other
-    classes contribute via their CLASS_SPECS weight (some are placeholders --
-    see traffic.py). Weights are NOT re-derived here.
+    - mission_utility weights: read from traffic.py CLASS_SPECS (single source
+      of truth). Day 11.5: traffic.py reduced from 7 classes to 4
+      (COMMAND_CONTROL, OAM, SCIENCE_METADATA removed). Formula reduces to
+      U = 100E + 10T + 1Sb - 1000E_exp (Sm term permanently zero).
+      Weights are NOT re-derived here.
   - SchedulerSnapshot / SchedulingDecision fields: LunaBridge design from the
     brief's telemetry requirements (Sec. 7 of SESSION_STATE). Internal only.
   - JSONL format: standard practice, no RFC needed.
@@ -323,12 +323,13 @@ def mission_utility(records: Iterable[BundleRecord]) -> float:
 
     Reading 2 (confirmed): U = sum of utility_weight (from CLASS_SPECS) over
     every DELIVERED bundle, minus 1000 for each EMERGENCY bundle that expired
-    (TTL_EXPIRED). This reduces EXACTLY to the brief S2-W5b formula
+    (TTL_EXPIRED).
+
+    Day 11.5: traffic.py reduced from 7 to 4 classes (COMMAND_CONTROL, OAM,
+    SCIENCE_METADATA removed -- see traffic.py). Brief's original formula
         U = 100E + 10T + 3Sm + 1Sb - 1000 E_expired
-    when only emergency/telemetry/sci_meta/sci_bulk carry traffic. Other
-    classes contribute via their CLASS_SPECS weight -- note that
-    COMMAND_CONTROL(30) and OAM(3) are PLACEHOLDER weights (see traffic.py);
-    when those are sourced, U updates with no change here.
+    can no longer be reproduced exactly -- Sm is permanently zero. Actual:
+        U = 100E + 10T + 1Sb - 1000 E_expired
 
     The -1000 penalty is EMERGENCY + TTL_EXPIRED only -- the brief specifies a
     penalty for expired emergencies, not for other classes and not for
@@ -388,7 +389,7 @@ def _smoke_test() -> None:
 
     # b1: EMERGENCY, delivered
     b1 = BundleRecord("b1", "flowA", TrafficClass.EMERGENCY, 84, ingress_ts=t0)
-    b1.set_ttl()                       # expiration_ts = t0 + 300
+    b1.set_ttl()                       # expiration_ts = t0 + EMERGENCY's default_ttl_s
     b1.queue_admission_ts = t0 + 1
     b1.transmission_ts = t0 + 2
     b1.mark(TerminalState.DELIVERED, ts=t0 + 5)
@@ -446,7 +447,7 @@ def _smoke_test() -> None:
     assert b1L.delivered is True
     assert b1L.end_to_end_latency_s == 5.0, b1L.end_to_end_latency_s
     assert b1L.queueing_delay_s == 1.0, b1L.queueing_delay_s
-    assert b1L.expiration_ts == t0 + 300.0
+    assert b1L.expiration_ts == t0 + CLASS_SPECS[TrafficClass.EMERGENCY].default_ttl_s
 
     # mark() must REFUSE to re-mark an already-terminal bundle
     raised = False
@@ -459,7 +460,7 @@ def _smoke_test() -> None:
     # mark(PENDING) must be rejected
     raised = False
     try:
-        BundleRecord("b4", "f", TrafficClass.OAM, 1, ingress_ts=t0).mark(TerminalState.PENDING)
+        BundleRecord("b4", "f", TrafficClass.MEDIA, 1, ingress_ts=t0).mark(TerminalState.PENDING)
     except ValueError:
         raised = True
     assert raised, "mark(PENDING) did not raise"

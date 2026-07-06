@@ -32,22 +32,22 @@ from .traffic import TrafficClass, spec
 # a UE cannot acquire elevated priority with an unrecognised DSCP.
 DSCP_TO_CLASS: dict[int, TrafficClass] = {
     46: TrafficClass.EMERGENCY,         # EF  (RFC 4594: Telephony — policy relabel)
-    56: TrafficClass.COMMAND_CONTROL,   # CS7
-    48: TrafficClass.COMMAND_CONTROL,   # CS6 (RFC 4594: Network Control)
-    40: TrafficClass.COMMAND_CONTROL,   # CS5 (RFC 4594: Signaling)
+    56: TrafficClass.EMERGENCY,         # CS7 (remapped Day 11.5, was COMMAND_CONTROL)
+    48: TrafficClass.EMERGENCY,         # CS6 (remapped Day 11.5, was COMMAND_CONTROL)
+    40: TrafficClass.EMERGENCY,         # CS5 (remapped Day 11.5, was COMMAND_CONTROL)
     34: TrafficClass.MEDIA,             # AF41 (RFC 4594: Multimedia Conferencing)
     36: TrafficClass.MEDIA,             # AF42
     38: TrafficClass.MEDIA,             # AF43
     26: TrafficClass.TELEMETRY,         # AF31 (policy relabel)
     28: TrafficClass.TELEMETRY,         # AF32
     30: TrafficClass.TELEMETRY,         # AF33
-    18: TrafficClass.SCIENCE_METADATA,  # AF21 (policy relabel)
-    20: TrafficClass.SCIENCE_METADATA,  # AF22
-    22: TrafficClass.SCIENCE_METADATA,  # AF23
+    18: TrafficClass.SCIENCE_BULK,      # AF21 (remapped Day 11.5, was SCIENCE_METADATA)
+    20: TrafficClass.SCIENCE_BULK,      # AF22 (remapped Day 11.5, was SCIENCE_METADATA)
+    22: TrafficClass.SCIENCE_BULK,      # AF23 (remapped Day 11.5, was SCIENCE_METADATA)
     10: TrafficClass.SCIENCE_BULK,      # AF11
     12: TrafficClass.SCIENCE_BULK,      # AF12
     14: TrafficClass.SCIENCE_BULK,      # AF13
-    16: TrafficClass.OAM,               # CS2  (RFC 4594: OAM)
+    16: TrafficClass.TELEMETRY,         # CS2 (remapped Day 11.5, was OAM)
      8: TrafficClass.SCIENCE_BULK,      # CS1  (RFC 4594: Low-Priority Data)
      0: TrafficClass.SCIENCE_BULK,      # CS0  (RFC 4594: Standard / best-effort)
 }
