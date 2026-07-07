@@ -132,7 +132,7 @@ class Scheduler:
         # silently re-prioritize arrivals (priority is applied at drain
         # time, not at admission time).
         for b in sorted(ready, key=lambda b: b.ingress_ts):
-            self._try_admit(b, ts=cutoff_ts)
+            self._try_admit(b, ts=b.ingress_ts)
         return still_future
 
     # -- expiry -----------------------------------------------------------
@@ -155,7 +155,7 @@ class Scheduler:
         eligible = [
             b for b in self._active
             if b.terminal_state is TerminalState.PENDING
-            and b.ingress_ts <= window.start_ts
+            and b.ingress_ts < window.end_ts
         ]
         eligible.sort(key=lambda b: (CLASS_SPECS[b.traffic_class].rank, b.ingress_ts))
 
@@ -206,7 +206,7 @@ class Scheduler:
         last_end_ts = None
 
         while window is not None:
-            pending_arrivals = self._admit_arrivals(pending_arrivals, window.start_ts)
+            pending_arrivals = self._admit_arrivals(pending_arrivals, window.end_ts)
             self._expire_in_blackout(window.start_ts)
             self._drain_window(window)
             last_end_ts = window.end_ts

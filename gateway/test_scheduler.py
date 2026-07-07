@@ -139,10 +139,9 @@ class TestRealisticBlackoutBehavior(unittest.TestCase):
 
         media = BundleRecord(
             "media-1", "flowA", TrafficClass.MEDIA, size_bytes=100,
-            ingress_ts=630000.0,  # arrives during window5, ineligible for
-        )                         # it under the ingress<=window.start_ts
-                                   # rule -> effectively queued into the gap
-        media.set_ttl()  # expiration_ts = 630000 + 11813 = 641813
+            ingress_ts=635000.0,  # arrives after window5 closes -- genuinely stuck
+        )                         # in the real blackout gap -- no window open to catch it
+        media.set_ttl()  # expiration_ts = 635000 + 11813 = 646813
 
         sched = Scheduler(self.plan, max_queue_bytes=max_queue_bytes)
         sched.run([media])
@@ -208,6 +207,73 @@ class TestRealisticBlackoutBehavior(unittest.TestCase):
         # deadline loss must land in SEPARATE buckets, never merged.
         self.assertNotEqual(starved.terminal_state, TerminalState.TTL_EXPIRED)
 
+
+
+class TestSyntheticStarvation(unittest.TestCase):
+    """Day 13 -- proves the strict-priority scheduler CAN starve a
+    low-rank bundle to NEVER_SCHEDULED as a mechanism property, using a
+    small synthetic plan (not the real 90-day file).
+
+    Why not the real file: mid-plan NEVER_SCHEDULED is mathematically
+    impossible against the real 90-day plan with real CLASS_SPECS TTLs --
+    remaining_plan_duration is always >> the longest real TTL (165389s)
+    except in the plan's final ~1.9 days. This test isolates the
+    MECHANISM (rank-based crowd-out) from that real-world timing
+    coincidence by using a plan short enough (~5500s total) that a real,
+    UNMODIFIED SCIENCE_BULK TTL (165389s) trivially outlives the entire
+    plan -- so if the bundle is still PENDING at the end, it is provably
+    because it was never selected, not because of timing luck. Real
+    CLASS_SPECS values are used untouched; only the ENVIRONMENT (contact
+    plan + crowd-out traffic) is synthetic, per this session's Option A
+    decision."""
+
+    def setUp(self):
+        self.plan = ContactPlan([
+            ContactWindow(contact_id="synth-starve-0", start_ts=0.0,
+                          end_ts=1000.0, link_rate_bps=8000.0),
+            ContactWindow(contact_id="synth-starve-1", start_ts=1500.0,
+                          end_ts=2500.0, link_rate_bps=8000.0),
+            ContactWindow(contact_id="synth-starve-2", start_ts=3000.0,
+                          end_ts=4000.0, link_rate_bps=8000.0),
+            ContactWindow(contact_id="synth-starve-3", start_ts=4500.0,
+                          end_ts=5500.0, link_rate_bps=8000.0),
+        ])
+        # Each window's raw_bit_budget() = 1000s * 8000bps = 8,000,000 bits
+        # = exactly 1,000,000 bytes -- matches the EMERGENCY bundles below
+        # exactly, one full window each.
+
+    def test_low_rank_bundle_never_scheduled_under_sustained_crowd_out(self):
+        """4 EMERGENCY bundles (rank 0), each sized to exactly fill one
+        window's raw_bit_budget(), crowd out a single SCIENCE_BULK bundle
+        (rank 2) across all 4 windows -- it is skip-over'd every time,
+        never once fits. Its real, unmodified TTL (165389s) vastly
+        outlives the plan's ~5500s total span, so it cannot resolve via
+        TTL_EXPIRED -- it can only resolve via NEVER_SCHEDULED once the
+        plan is exhausted. Starvation proven by construction, not by
+        incidental real-world gap placement."""
+        emergency_bundles = [
+            BundleRecord(f"emg-{i}", "flowC", TrafficClass.EMERGENCY,
+                         size_bytes=1_000_000, ingress_ts=0.0)
+            for i in range(4)
+        ]
+        for b in emergency_bundles:
+            b.set_ttl()
+
+        starved = BundleRecord("starved-sci", "flowC", TrafficClass.SCIENCE_BULK,
+                               size_bytes=100, ingress_ts=0.0)
+        starved.set_ttl()  # real SCIENCE_BULK TTL = 165389s
+
+        total_bytes = sum(b.size_bytes for b in emergency_bundles) + starved.size_bytes
+        sched = Scheduler(self.plan, max_queue_bytes=total_bytes * 2)
+        sched.run(emergency_bundles + [starved])
+
+        for b in emergency_bundles:
+            self.assertEqual(b.terminal_state, TerminalState.DELIVERED)
+
+        self.assertEqual(starved.terminal_state, TerminalState.NEVER_SCHEDULED)
+        # The core assertion: sustained rank-based crowd-out must resolve
+        # as starvation, never silently folded into TTL_EXPIRED.
+        self.assertNotEqual(starved.terminal_state, TerminalState.TTL_EXPIRED)
 
 if __name__ == "__main__":
     unittest.main()
