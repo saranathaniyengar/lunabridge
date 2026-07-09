@@ -18,6 +18,15 @@ Sources:
   - DSCP framing: RFC 2474 (IP-layer), RFC 4594 (codepoint names)
   - TS 23.501 Table 5.7.4-1 maps 5QI to QoS characteristics only;
     no DSCP column exists (verified). No normative 5QI->DSCP table exists.
+  - queue_budget (Day 14): WFQ scheduling weight, NOT a byte cap and NOT
+    reused from utility_weight. TELEMETRY=10.0 sourced from utility_weight
+    (unchanged coincidence, both from brief). SCIENCE_BULK=1.0 and
+    MEDIA=1.0 are an EXPLICIT POLICY FLOOR, not derived from any source --
+    reusing MEDIA's utility_weight=0.0 directly would zero its WFQ share
+    entirely, which Day 14's session explicitly decided against. See
+    SESSION_STATE.md Day 14 Decisions 2-3. EMERGENCY's queue_budget is
+    left at the dataclass default (1.0) but is INERT -- Decision 1
+    excludes EMERGENCY from WFQ entirely (hard-preempt, always).
 
 REMOVED Day 11.5 (deliberate deletion, not a data finding):
   - COMMAND_CONTROL: never had a source (ttl_s, utility_weight,
@@ -31,7 +40,10 @@ REMOVED Day 11.5 (deliberate deletion, not a data finding):
 
 Still open:
   - TELEMETRY: custody_required — judgment call, not in brief. Untouched.
-  - queue_budget: all 1.0 (no cap); inert until WFQ scheduler (Days 16-28)
+
+RESOLVED Day 14:
+  - queue_budget: TELEMETRY:SCIENCE_BULK:MEDIA = 10:1:1. No longer
+    inert -- read by gateway/scheduler.py's WFQ/WFQ_SKIP_OVER policies.
 """
 
 from __future__ import annotations
@@ -57,9 +69,10 @@ class ClassSpec:
     default_ttl_s   : default bundle lifetime in seconds.
     custody_required: DTN custody transfer required (no silent drop).
     expendable      : safe to drop after real-time window closes.
-    queue_budget    : POLICY KNOB — max fraction of contact window capacity
-                      for this class. 1.0 = no cap. Inert under FIFO /
-                      strict-priority. Do not treat as a justified number.
+    queue_budget    : Day 14 -- WFQ scheduling weight (fraction/ratio of
+                      the post-EMERGENCY remainder, NOT a byte cap). See
+                      module docstring "RESOLVED Day 14" for sourcing.
+                      INERT for EMERGENCY (Decision 1 excludes it from WFQ).
     """
     rank: int
     utility_weight: float
@@ -73,7 +86,11 @@ CLASS_SPECS: dict[TrafficClass, ClassSpec] = {
     # --- OVERWRITTEN (Day 11.5): ttl_s was 300.0 (brief S2-W5b). Guide
     #     instructed replacing with LCRNS-derived contingency value: S3 1-SV
     #     degraded contact plan (GMAT-derived), max_gap=5.56h + 1h margin
-    #     = 23627s. utility_weight=100.0 still from brief, untouched. ---
+    #     = 23627s. utility_weight=100.0 still from brief, untouched.
+    #     queue_budget left at default (1.0) -- INERT for EMERGENCY. Day 14
+    #     Decision 1 excludes EMERGENCY from WFQ entirely; it always
+    #     hard-preempts regardless of this value. Not read by _drain_wfq
+    #     for this class. ---
     TrafficClass.EMERGENCY: ClassSpec(
         rank=0, utility_weight=100.0, default_ttl_s=23627.0,
         custody_required=True, expendable=False,
@@ -85,19 +102,27 @@ CLASS_SPECS: dict[TrafficClass, ClassSpec] = {
     #     gap-based derivation. Deliberately uses the degraded/blackout
     #     case, not the nominal 5-satellite case (true gap=0h there).
     # --- PLACEHOLDER: custody_required=True is still a judgment call; not
-    #     stated in brief. Update when S3-W3/W4 output is available. ---
+    #     stated in brief. Update when S3-W3/W4 output is available.
+    # --- RESOLVED (Day 14): queue_budget=10.0 -- WFQ scheduling weight,
+    #     ratio TELEMETRY:SCIENCE_BULK:MEDIA = 10:1:1. Sourced directly
+    #     from utility_weight (10.0, unchanged). See SESSION_STATE.md
+    #     Day 14 Decision 3. ---
     TrafficClass.TELEMETRY: ClassSpec(
         rank=1, utility_weight=10.0, default_ttl_s=47254.0,
-        custody_required=True, expendable=False,
+        custody_required=True, expendable=False, queue_budget=10.0,
     ),
     # --- OVERWRITTEN (Day 11.5): ttl_s was 7*86400.0=604800.0 (brief S2-W5b).
     #     Guide instructed replacing with LCRNS-derived contingency value: S3
     #     1-SV degraded contact plan (GMAT-derived), guide's sheet scales
     #     SCIENCE at ~7x the base max_gap+1h figure (23627s x7 ~ 165389s).
-    #     utility_weight=1.0 still from brief, untouched. ---
+    #     utility_weight=1.0 still from brief, untouched.
+    # --- RESOLVED (Day 14): queue_budget=1.0 -- WFQ scheduling weight.
+    #     Part of the explicit 10:1:1 policy floor (SCIENCE_BULK:MEDIA =
+    #     1:1, NOT derived from utility_weight). See SESSION_STATE.md
+    #     Day 14 Decision 3. ---
     TrafficClass.SCIENCE_BULK: ClassSpec(
         rank=2, utility_weight=1.0, default_ttl_s=165389.0,
-        custody_required=False, expendable=False,
+        custody_required=False, expendable=False, queue_budget=1.0,
     ),
     # --- OVERWRITTEN (Day 11.5): ttl_s was 0.0 (brief S2-W5b, TTL=0:
     #     real-time only). Guide instructed replacing with LCRNS-derived
@@ -106,10 +131,15 @@ CLASS_SPECS: dict[TrafficClass, ClassSpec] = {
     #     (23627s x0.5 ~ 11813s). NOTE: this changes MEDIA's semantics from
     #     "expire immediately if not delivered live" to "survive ~3.3h" -
     #     flagged as a real behavior change, not just a number swap.
-    #     utility_weight=0.0 still from brief, untouched. ---
+    #     utility_weight=0.0 still from brief, untouched.
+    # --- RESOLVED (Day 14): queue_budget=1.0 -- WFQ scheduling weight.
+    #     Deliberately NOT reused from utility_weight=0.0, which would zero
+    #     MEDIA's WFQ share entirely. Explicit 1:1 policy floor with
+    #     SCIENCE_BULK, decided this session. See SESSION_STATE.md Day 14
+    #     Decision 3. ---
     TrafficClass.MEDIA: ClassSpec(
         rank=3, utility_weight=0.0, default_ttl_s=11813.0,
-        custody_required=False, expendable=True,
+        custody_required=False, expendable=True, queue_budget=1.0,
     ),
 }
 

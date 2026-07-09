@@ -31,7 +31,7 @@ import os
 import unittest
 
 from .contact_plan import ContactPlan, ContactWindow
-from .scheduler import Scheduler
+from .scheduler import Scheduler, SchedulingPolicy
 from .telemetry import BundleRecord, TerminalState
 from .traffic import TrafficClass
 
@@ -274,6 +274,93 @@ class TestSyntheticStarvation(unittest.TestCase):
         # The core assertion: sustained rank-based crowd-out must resolve
         # as starvation, never silently folded into TTL_EXPIRED.
         self.assertNotEqual(starved.terminal_state, TerminalState.TTL_EXPIRED)
+
+class TestSchedulingPolicies(unittest.TestCase):
+    """Day 14 -- FIFO / WFQ / deficit-carryover coverage. See
+    SESSION_STATE.md Day 14 Decision 5: none of the 5 Day 12/13 tests
+    exercise multi-class contention among TELEMETRY/SCIENCE_BULK/MEDIA,
+    so these are additive, not replacements."""
+
+    def test_fifo_emergency_can_be_stuck_behind_media(self):
+        """FIFO is fully naive -- no class-awareness at all. Demonstrates
+        the failure mode that justifies DTN's native strict-priority
+        model existing in the first place."""
+        plan = ContactPlan([
+            ContactWindow(contact_id="w0", start_ts=0.0, end_ts=100.0, link_rate_bps=1000.0),
+        ])
+        sched = Scheduler(plan, max_queue_bytes=1_000_000,
+                           policy=SchedulingPolicy.FIFO)
+
+        media = BundleRecord("media-1", "f1", TrafficClass.MEDIA,
+                              size_bytes=10000, ingress_ts=0.0)
+        media.set_ttl()
+        emergency = BundleRecord("emg-1", "f2", TrafficClass.EMERGENCY,
+                                  size_bytes=10000, ingress_ts=0.1)
+        emergency.set_ttl()
+
+        sched.run([media, emergency])
+
+        self.assertEqual(media.terminal_state, TerminalState.DELIVERED)
+        self.assertEqual(emergency.terminal_state, TerminalState.NEVER_SCHEDULED)
+
+    def test_wfq_splits_remainder_by_queue_budget_ratio(self):
+        """Proves the core WFQ mechanism: TELEMETRY/SCIENCE_BULK/MEDIA all
+        contending in the same window, all serviced per the 10:1:1
+        queue_budget ratio in a single window."""
+        plan = ContactPlan([
+            ContactWindow(contact_id="w0", start_ts=0.0, end_ts=100.0, link_rate_bps=9600.0),
+        ])
+        sched = Scheduler(plan, max_queue_bytes=1_000_000,
+                           policy=SchedulingPolicy.WFQ)
+
+        telemetry = BundleRecord("tel-1", "f1", TrafficClass.TELEMETRY,
+                                  size_bytes=90000, ingress_ts=0.0)
+        telemetry.set_ttl()
+        sci_bulk = BundleRecord("sci-1", "f2", TrafficClass.SCIENCE_BULK,
+                                 size_bytes=9000, ingress_ts=0.0)
+        sci_bulk.set_ttl()
+        media = BundleRecord("media-1", "f3", TrafficClass.MEDIA,
+                              size_bytes=9000, ingress_ts=0.0)
+        media.set_ttl()
+
+        sched.run([telemetry, sci_bulk, media])
+
+        self.assertEqual(telemetry.terminal_state, TerminalState.DELIVERED)
+        self.assertEqual(sci_bulk.terminal_state, TerminalState.DELIVERED)
+        self.assertEqual(media.terminal_state, TerminalState.DELIVERED)
+
+        transmit_decisions = {d.bundle_id: d for d in sched.decisions
+                               if d.action == "transmit"}
+        self.assertIn("wfq_telemetry", transmit_decisions["tel-1"].reason)
+        self.assertIn("wfq_sci_bulk", transmit_decisions["sci-1"].reason)
+        self.assertIn("wfq_media", transmit_decisions["media-1"].reason)
+
+    def test_wfq_deficit_carries_over_across_windows(self):
+        """A SCIENCE_BULK bundle too big for one window's quantum share
+        still gets sent once TWO windows' worth of quantum has
+        accumulated -- proving deficit carryover, not permanent
+        skip-over."""
+        plan = ContactPlan([
+            ContactWindow(contact_id="w0", start_ts=0.0, end_ts=100.0, link_rate_bps=800.0),
+            ContactWindow(contact_id="w1", start_ts=200.0, end_ts=300.0, link_rate_bps=800.0),
+        ])
+        sched = Scheduler(plan, max_queue_bytes=1_000_000,
+                           policy=SchedulingPolicy.WFQ)
+
+        sci_bulk = BundleRecord("sci-1", "f1", TrafficClass.SCIENCE_BULK,
+                                 size_bytes=1500, ingress_ts=0.0)
+        sci_bulk.set_ttl()
+
+        sched.run([sci_bulk])
+
+        self.assertEqual(sci_bulk.terminal_state, TerminalState.DELIVERED)
+        self.assertEqual(sci_bulk.contact_id, "w1")
+
+        sci_decisions = [d for d in sched.decisions if d.bundle_id == "sci-1"]
+        self.assertEqual(sci_decisions[0].action, "defer")
+        self.assertEqual(sci_decisions[0].reason, "insufficient_deficit")
+        self.assertEqual(sci_decisions[1].action, "transmit")
+
 
 if __name__ == "__main__":
     unittest.main()
