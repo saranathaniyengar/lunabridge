@@ -1,0 +1,227 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2026-07-13 12:22:51
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+DefaultSC.DateFormat = UTCGregorian;
+DefaultSC.Epoch = '01 Mar 2027 00:00:00.000';
+DefaultSC.CoordinateSystem = MoonJ2000Inertial;
+DefaultSC.DisplayStateType = Keplerian;
+DefaultSC.SMA = 11315.93650100017;
+DefaultSC.ECC = 0.6919820000000036;
+DefaultSC.INC = 59.37322900000021;
+DefaultSC.RAAN = 321.019197;
+DefaultSC.AOP = 92.49403099999995;
+DefaultSC.TA = 0;
+DefaultSC.DryMass = 850;
+DefaultSC.Cd = 2.2;
+DefaultSC.Cr = 1.8;
+DefaultSC.DragArea = 15;
+DefaultSC.SRPArea = 1;
+DefaultSC.SPADDragScaleFactor = 1;
+DefaultSC.SPADSRPScaleFactor = 1;
+DefaultSC.AtmosDensityScaleFactor = 1;
+DefaultSC.ExtendedMassPropertiesModel = 'None';
+DefaultSC.NAIFId = -10000001;
+DefaultSC.NAIFIdReferenceFrame = -9000001;
+DefaultSC.OrbitColor = Red;
+DefaultSC.TargetColor = Teal;
+DefaultSC.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+DefaultSC.CdSigma = 1e+70;
+DefaultSC.CrSigma = 1e+70;
+DefaultSC.Id = 'SatId';
+DefaultSC.Attitude = CoordinateSystemFixed;
+DefaultSC.SPADSRPInterpolationMethod = Bilinear;
+DefaultSC.SPADSRPScaleFactorSigma = 1e+70;
+DefaultSC.SPADDragInterpolationMethod = Bilinear;
+DefaultSC.SPADDragScaleFactorSigma = 1e+70;
+DefaultSC.AtmosDensityScaleFactorSigma = 1e+70;
+DefaultSC.ModelFile = 'aura.3ds';
+DefaultSC.ModelOffsetX = 0;
+DefaultSC.ModelOffsetY = 0;
+DefaultSC.ModelOffsetZ = 0;
+DefaultSC.ModelRotationX = 0;
+DefaultSC.ModelRotationY = 0;
+DefaultSC.ModelRotationZ = 0;
+DefaultSC.ModelScale = 1;
+DefaultSC.AttitudeDisplayStateType = 'Quaternion';
+DefaultSC.AttitudeRateDisplayStateType = 'AngularVelocity';
+DefaultSC.AttitudeCoordinateSystem = EarthMJ2000Eq;
+DefaultSC.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- GroundStations
+%----------------------------------------
+
+Create GroundStation GroundStation1;
+GroundStation1.OrbitColor = Thistle;
+GroundStation1.TargetColor = DarkGray;
+GroundStation1.CentralBody = Luna;
+GroundStation1.StateType = Spherical;
+GroundStation1.HorizonReference = Sphere;
+GroundStation1.Location1 = -85.98999999999999;
+GroundStation1.Location2 = 357.07;
+GroundStation1.Location3 = 5;
+GroundStation1.Id = 'MalapertPeak';
+GroundStation1.IonosphereModel = 'None';
+GroundStation1.TroposphereModel = 'None';
+GroundStation1.DataSource = 'Constant';
+GroundStation1.Temperature = 295.1;
+GroundStation1.Pressure = 1013.5;
+GroundStation1.Humidity = 55;
+GroundStation1.MinimumElevationAngle = 7;
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+DefaultProp_ForceModel.CentralBody = Luna;
+DefaultProp_ForceModel.PrimaryBodies = {Luna};
+DefaultProp_ForceModel.PointMasses = {Earth, Jupiter, Mars, Saturn, Sun, Venus};
+DefaultProp_ForceModel.Drag = None;
+DefaultProp_ForceModel.SRP = On;
+DefaultProp_ForceModel.RelativisticCorrection = Off;
+DefaultProp_ForceModel.ErrorControl = RSSStep;
+DefaultProp_ForceModel.GravityField.Luna.Degree = 25;
+DefaultProp_ForceModel.GravityField.Luna.Order = 25;
+DefaultProp_ForceModel.GravityField.Luna.StmLimit = 100;
+DefaultProp_ForceModel.GravityField.Luna.PotentialFile = 'C:\Users\saran\Downloads\gmat-win-R2026a\data\gravity\luna\grgm900c.cof';
+DefaultProp_ForceModel.GravityField.Luna.TideModel = 'None';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+DefaultProp.FM = DefaultProp_ForceModel;
+DefaultProp.Type = RungeKutta89;
+DefaultProp.InitialStepSize = 60;
+DefaultProp.Accuracy = 9.999999999999999e-12;
+DefaultProp.MinStep = 0.001;
+DefaultProp.MaxStep = 2700;
+DefaultProp.MaxStepAttempts = 50;
+DefaultProp.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem MoonJ2000Inertial;
+MoonJ2000Inertial.Origin = Luna;
+MoonJ2000Inertial.Axes = BodyInertial;
+
+%----------------------------------------
+%---------- EventLocators
+%----------------------------------------
+
+Create ContactLocator ContactLocator1;
+ContactLocator1.Target = DefaultSC;
+ContactLocator1.Filename = 'C:\Users\saran\Desktop\ContactLocator1.txt';
+ContactLocator1.InputEpochFormat = 'UTCGregorian';
+ContactLocator1.InitialEpoch = '01 Mar 2027 00:10:00.000';
+ContactLocator1.StepSize = 10;
+ContactLocator1.FinalEpoch = '30 May 2027 00:00:00.000';
+ContactLocator1.UseLightTimeDelay = true;
+ContactLocator1.UseStellarAberration = true;
+ContactLocator1.WriteReport = true;
+ContactLocator1.RunMode = Automatic;
+ContactLocator1.UseEntireInterval = true;
+ContactLocator1.LightTimeDirection = Transmit;
+ContactLocator1.LeftJustified = false;
+ContactLocator1.ReportPrecision = 6;
+ContactLocator1.ReportFormat = 'Legacy';
+ContactLocator1.IntervalStepSize = 0;
+ContactLocator1.ReportTimeFormat = 'UTCGregorian';
+ContactLocator1.Observers = {GroundStation1};
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create OpenFramesInterface DefaultOrbitView;
+DefaultOrbitView.SolverIterations = Current;
+DefaultOrbitView.UpperLeft = [ 0 0 ];
+DefaultOrbitView.Size = [ 0 0 ];
+DefaultOrbitView.RelativeZOrder = 0;
+DefaultOrbitView.Maximized = false;
+DefaultOrbitView.Add = {DefaultSC, Earth};
+DefaultOrbitView.View = {DefaultOrbitView_View};
+DefaultOrbitView.CoordinateSystem = EarthMJ2000Eq;
+DefaultOrbitView.DrawObject = [ true true ];
+DefaultOrbitView.DrawTrajectory = [ true true ];
+DefaultOrbitView.DrawAxes = [ false false ];
+DefaultOrbitView.DrawXYPlane = [ false false ];
+DefaultOrbitView.DrawLabel = [ true true ];
+DefaultOrbitView.DrawUsePropLabel = [ false false ];
+DefaultOrbitView.DrawCenterPoint = [ true true ];
+DefaultOrbitView.DrawEndPoints = [ true true ];
+DefaultOrbitView.DrawVelocity = [ false false ];
+DefaultOrbitView.DrawGrid = [ false false ];
+DefaultOrbitView.DrawLineWidth = [ 2 2 ];
+DefaultOrbitView.DrawMarkerSize = [ 10 10 ];
+DefaultOrbitView.DrawFontSize = [ 20 20 ];
+DefaultOrbitView.Axes = On;
+DefaultOrbitView.AxesLength = 12756.2726;
+DefaultOrbitView.AxesLabels = On;
+DefaultOrbitView.FrameLabel = Off;
+DefaultOrbitView.XYPlane = On;
+DefaultOrbitView.EclipticPlane = Off;
+DefaultOrbitView.EnableStars = On;
+DefaultOrbitView.StarCatalog = 'inp_StarsHYGv3.txt';
+DefaultOrbitView.StarCount = 40000;
+DefaultOrbitView.MinStarMag = -2;
+DefaultOrbitView.MaxStarMag = 6;
+DefaultOrbitView.MinStarPixels = 1;
+DefaultOrbitView.MaxStarPixels = 10;
+DefaultOrbitView.MinStarDimRatio = 0.5;
+DefaultOrbitView.ShowPlot = true;
+DefaultOrbitView.ShowToolbar = true;
+DefaultOrbitView.SolverIterLastN = 0;
+DefaultOrbitView.ShowVR = false;
+DefaultOrbitView.PlaybackTimeScale = 3600;
+DefaultOrbitView.MultisampleAntiAliasing = On;
+DefaultOrbitView.MSAASamples = 2;
+DefaultOrbitView.DrawFontPosition = {'Top-Right', 'Top-Right'};
+
+Create GroundTrack DefaultGroundTrackPlot;
+DefaultGroundTrackPlot.SolverIterations = Current;
+DefaultGroundTrackPlot.UpperLeft = [ 0 0 ];
+DefaultGroundTrackPlot.Size = [ 0 0 ];
+DefaultGroundTrackPlot.RelativeZOrder = 0;
+DefaultGroundTrackPlot.Maximized = false;
+DefaultGroundTrackPlot.CentralBody = Earth;
+DefaultGroundTrackPlot.Add = {DefaultSC};
+DefaultGroundTrackPlot.DataCollectFrequency = 1;
+DefaultGroundTrackPlot.UpdatePlotFrequency = 50;
+DefaultGroundTrackPlot.NumPointsToRedraw = 0;
+DefaultGroundTrackPlot.MaxPlotPoints = 20000;
+DefaultGroundTrackPlot.ShowPlot = true;
+
+%----------------------------------------
+%---------- User Objects
+%----------------------------------------
+
+Create OpenFramesView DefaultOrbitView_View;
+DefaultOrbitView_View.ViewFrame = CoordinateSystem;
+DefaultOrbitView_View.ViewTrajectory = Off;
+DefaultOrbitView_View.InertialFrame = Off;
+DefaultOrbitView_View.SetDefaultLocation = On;
+DefaultOrbitView_View.DefaultEye = [ 30000 0 0 ];
+DefaultOrbitView_View.DefaultCenter = [ 0 0 0 ];
+DefaultOrbitView_View.DefaultUp = [ 0 0 1 ];
+DefaultOrbitView_View.SetCurrentLocation = Off;
+DefaultOrbitView_View.FOVy = 45;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+Propagate DefaultProp(DefaultSC) {DefaultSC.ElapsedSecs = 7776600.0};
+FindEvents ContactLocator1;
