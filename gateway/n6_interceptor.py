@@ -93,11 +93,19 @@ class N6Interceptor:
         dst = socket.inet_ntoa(payload[16:20])
         return src, dst
 
+    
     @staticmethod
     def _extract_dscp(payload: bytes) -> int:
-        # IPv4 byte 1 = DS field: top 6 bits DSCP, bottom 2 ECN (RFC 2474)
         if len(payload) < 2:
             return 0
+        version = payload[0] >> 4
+        if version == 6:
+            # IPv6 Traffic Class (RFC 8200) is split across two bytes: low
+            # half of byte 0 + high half of byte 1. Glue them back together
+            # before reading DSCP the same way as IPv4.
+            traffic_class = ((payload[0] & 0x0F) << 4) | ((payload[1] & 0xF0) >> 4)
+            return (traffic_class >> 2) & 0x3F
+        # IPv4 byte 1 = DS field: top 6 bits DSCP, bottom 2 ECN (RFC 2474)
         return (payload[1] >> 2) & 0x3F
 
     def _cleanup(self) -> None:
