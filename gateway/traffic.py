@@ -82,6 +82,17 @@ class ClassSpec:
     queue_budget: float = 1.0
 
 
+# --- OVERWRITTEN (S2-W6-7 TTL redesign): all four default_ttl_s
+#     values below were exact multiples of one contact-gap-derived
+#     number (Day 11.5) -- flagged as trivially tied to the plan's
+#     own gap structure, making TTL_EXPIRED near-impossible against
+#     the real 90-day plan. Redesigned per RFC 9171 Sec 4.3.1's own
+#     lifetime semantics (payload usefulness, not link characteristics).
+#     EMERGENCY=300s is a stated test value (order-of-minutes,
+#     time-critical), not cited to a specific mission standard.
+#     TELEMETRY/MEDIA=3600s (sampling cadence / general freshness).
+#     SCIENCE_BULK=57600s (buffer-depth x arrival-rate). See
+#     conversation log for full derivation. ---
 CLASS_SPECS: dict[TrafficClass, ClassSpec] = {
     # --- OVERWRITTEN (Day 11.5): ttl_s was 300.0 (brief S2-W5b). Guide
     #     instructed replacing with LCRNS-derived contingency value: S3 1-SV
@@ -92,7 +103,7 @@ CLASS_SPECS: dict[TrafficClass, ClassSpec] = {
     #     hard-preempts regardless of this value. Not read by _drain_wfq
     #     for this class. ---
     TrafficClass.EMERGENCY: ClassSpec(
-        rank=0, utility_weight=100.0, default_ttl_s=23627.0,
+        rank=0, utility_weight=100.0, default_ttl_s=300.0,
         custody_required=True, expendable=False,
     ),
     # --- RESOLVED (Day 11.5): ttl_s = guide-provided contingency value, S3
@@ -108,7 +119,7 @@ CLASS_SPECS: dict[TrafficClass, ClassSpec] = {
     #     from utility_weight (10.0, unchanged). See SESSION_STATE.md
     #     Day 14 Decision 3. ---
     TrafficClass.TELEMETRY: ClassSpec(
-        rank=1, utility_weight=10.0, default_ttl_s=47254.0,
+        rank=1, utility_weight=10.0, default_ttl_s=3600.0,
         custody_required=True, expendable=False, queue_budget=10.0,
     ),
     # --- OVERWRITTEN (Day 11.5): ttl_s was 7*86400.0=604800.0 (brief S2-W5b).
@@ -121,7 +132,7 @@ CLASS_SPECS: dict[TrafficClass, ClassSpec] = {
     #     1:1, NOT derived from utility_weight). See SESSION_STATE.md
     #     Day 14 Decision 3. ---
     TrafficClass.SCIENCE_BULK: ClassSpec(
-        rank=2, utility_weight=1.0, default_ttl_s=165389.0,
+        rank=2, utility_weight=1.0, default_ttl_s=57600.0,
         custody_required=False, expendable=False, queue_budget=1.0,
     ),
     # --- OVERWRITTEN (Day 11.5): ttl_s was 0.0 (brief S2-W5b, TTL=0:
@@ -138,7 +149,7 @@ CLASS_SPECS: dict[TrafficClass, ClassSpec] = {
     #     SCIENCE_BULK, decided this session. See SESSION_STATE.md Day 14
     #     Decision 3. ---
     TrafficClass.MEDIA: ClassSpec(
-        rank=3, utility_weight=0.0, default_ttl_s=11813.0,
+        rank=3, utility_weight=0.0, default_ttl_s=3600.0,
         custody_required=False, expendable=True, queue_budget=1.0,
     ),
 }
