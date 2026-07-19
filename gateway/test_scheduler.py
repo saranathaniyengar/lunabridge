@@ -180,7 +180,13 @@ class TestRealisticBlackoutBehavior(unittest.TestCase):
             "sci-1", "flowC", TrafficClass.SCIENCE_BULK, size_bytes=100,
             ingress_ts=second_last.start_ts,
         )
-        starved.set_ttl()  # expiration_ts = second_last.start_ts + 165389
+        # OVERRIDE (was real SCIENCE_BULK default, 165389s, before this
+        # session's TTL redesign dropped it to 57600s -- no longer safely
+        # outlives the remaining plan duration from this test point).
+        # Explicit override isolates this test from future TTL changes,
+        # since starvation mechanics -- not SCIENCE_BULK's specific TTL --
+        # is the actual point of this test.
+        starved.set_ttl(ttl_s=200000.0)
 
         # Sanity check on the scenario itself before trusting the result:
         # the bundle's TTL must genuinely outlive the plan's remaining
@@ -256,8 +262,13 @@ class TestSyntheticStarvation(unittest.TestCase):
                          size_bytes=1_000_000, ingress_ts=0.0)
             for i in range(4)
         ]
+        # OVERRIDE (was real EMERGENCY default, 23627s, before this
+        # session's TTL redesign dropped it to 300s -- no longer survives
+        # across this ~5500s synthetic span). These bundles are pure
+        # crowd-out filler; rank-based starvation of SCIENCE_BULK, not
+        # EMERGENCY's own TTL, is the actual point of this test.
         for b in emergency_bundles:
-            b.set_ttl()
+            b.set_ttl(ttl_s=10000.0)
 
         starved = BundleRecord("starved-sci", "flowC", TrafficClass.SCIENCE_BULK,
                                size_bytes=100, ingress_ts=0.0)
@@ -360,6 +371,146 @@ class TestSchedulingPolicies(unittest.TestCase):
         self.assertEqual(sci_decisions[0].action, "defer")
         self.assertEqual(sci_decisions[0].reason, "insufficient_deficit")
         self.assertEqual(sci_decisions[1].action, "transmit")
+
+    def test_deadline_aware_saves_at_risk_bundle_strict_priority_loses(self):
+        """S2-W6-7. Proves DEADLINE_AWARE (true EDF) genuinely differs from
+        STRICT_PRIORITY, not just a different label on the same behavior.
+
+        EMERGENCY uses its real, unmodified default TTL (300s, per this
+        session's TTL redesign -- CLASS_SPECS.py) -- comfortably survives
+        the 100s gap to window 1. TELEMETRY is deliberately overridden to
+        50s (its real default, 3600s, would not be at-risk in this small
+        synthetic plan) -- expires before window 1 (100s gap) opens,
+        making it genuinely AT RISK. Window 0's budget (800 bits) fits
+        only one of the two 90-byte (720-bit) bundles.
+
+        STRICT_PRIORITY sends EMERGENCY first (rank), TELEMETRY deferred,
+        then dies in blackout before window 1. DEADLINE_AWARE sorts by
+        raw expiration_ts (TELEMETRY's 50s < EMERGENCY's 300s) -- sends
+        TELEMETRY instead, EMERGENCY safely deferred to window 1 (still has
+        300s - 100s = 200s of TTL margin left when window 1 opens)."""
+        plan = ContactPlan([
+            ContactWindow(contact_id="w0", start_ts=0.0, end_ts=1.0, link_rate_bps=800.0),
+            ContactWindow(contact_id="w1", start_ts=100.0, end_ts=101.0, link_rate_bps=800.0),
+        ])
+
+        def make_bundles():
+            emergency = BundleRecord("emg-1", "f1", TrafficClass.EMERGENCY,
+                                      size_bytes=90, ingress_ts=0.0)
+            emergency.set_ttl()  # real default: 300s
+            telemetry = BundleRecord("tel-1", "f2", TrafficClass.TELEMETRY,
+                                      size_bytes=90, ingress_ts=0.0)
+            telemetry.set_ttl(ttl_s=50.0)  # override -- see docstring
+            return emergency, telemetry
+
+        # STRICT_PRIORITY: EMERGENCY wins the only slot, TELEMETRY dies waiting.
+        emergency, telemetry = make_bundles()
+        sched = Scheduler(plan, max_queue_bytes=1_000_000,
+                           policy=SchedulingPolicy.STRICT_PRIORITY)
+        sched.run([emergency, telemetry])
+        self.assertEqual(emergency.terminal_state, TerminalState.DELIVERED)
+        self.assertEqual(emergency.contact_id, "w0")
+        self.assertEqual(telemetry.terminal_state, TerminalState.TTL_EXPIRED)
+
+        # DEADLINE_AWARE: TELEMETRY (earlier deadline) wins the slot instead;
+        # EMERGENCY safely survives to window 1.
+        emergency, telemetry = make_bundles()
+        sched = Scheduler(plan, max_queue_bytes=1_000_000,
+                           policy=SchedulingPolicy.DEADLINE_AWARE)
+        sched.run([emergency, telemetry])
+        self.assertEqual(telemetry.terminal_state, TerminalState.DELIVERED)
+        self.assertEqual(telemetry.contact_id, "w0")
+        self.assertEqual(emergency.terminal_state, TerminalState.DELIVERED)
+        self.assertEqual(emergency.contact_id, "w1")
+
+    def test_utility_aware_prefers_higher_value_when_both_at_risk(self):
+        """S2-W6-7. Proves UTILITY_AWARE genuinely differs from
+        DEADLINE_AWARE -- not just a relabeling. Both EMERGENCY and
+        TELEMETRY are overridden to be at-risk (window 1 opens at t=50;
+        both TTLs < 50), so the at-risk gate alone can't distinguish them
+        -- this isolates UTILITY_AWARE's SECOND mechanism, sorting by
+        utility_weight WITHIN the at-risk tier. TELEMETRY's TTL (5s) is
+        deliberately shorter than EMERGENCY's (10s) -- more urgent by pure
+        deadline, but worth 10x less (utility_weight 10 vs 100).
+
+        DEADLINE_AWARE (blind to value) sends TELEMETRY first purely
+        because its deadline is earlier -- EMERGENCY then dies in
+        blackout, taking the -1000 mission_utility penalty. UTILITY_AWARE
+        sorts the at-risk tier by value instead -- sends EMERGENCY (worth
+        more), sacrifices TELEMETRY. Neither survives to the next window
+        (both truly at risk) -- the only question is WHICH one policy
+        chooses to save, and this is where the two policies diverge."""
+        plan = ContactPlan([
+            ContactWindow(contact_id="w0", start_ts=0.0, end_ts=1.0, link_rate_bps=800.0),
+            ContactWindow(contact_id="w1", start_ts=50.0, end_ts=51.0, link_rate_bps=800.0),
+        ])
+
+        def make_bundles():
+            emergency = BundleRecord("emg-1", "f1", TrafficClass.EMERGENCY,
+                                      size_bytes=90, ingress_ts=0.0)
+            emergency.set_ttl(ttl_s=10.0)  # override -- see docstring
+            telemetry = BundleRecord("tel-1", "f2", TrafficClass.TELEMETRY,
+                                      size_bytes=90, ingress_ts=0.0)
+            telemetry.set_ttl(ttl_s=5.0)  # override -- see docstring
+            return emergency, telemetry
+
+        # Sanity check on the scenario itself: BOTH must genuinely be at
+        # risk (die before window 1 opens), or this isn't testing the
+        # value-tiebreak mechanism at all.
+        emergency, telemetry = make_bundles()
+        self.assertLess(emergency.expiration_ts, 50.0)
+        self.assertLess(telemetry.expiration_ts, 50.0)
+
+        # DEADLINE_AWARE: blind to value, sacrifices the HIGHER-value bundle.
+        emergency, telemetry = make_bundles()
+        sched = Scheduler(plan, max_queue_bytes=1_000_000,
+                           policy=SchedulingPolicy.DEADLINE_AWARE)
+        sched.run([emergency, telemetry])
+        self.assertEqual(telemetry.terminal_state, TerminalState.DELIVERED)
+        self.assertEqual(emergency.terminal_state, TerminalState.TTL_EXPIRED)
+
+        # UTILITY_AWARE: sorts the at-risk tier by value, saves EMERGENCY instead.
+        emergency, telemetry = make_bundles()
+        sched = Scheduler(plan, max_queue_bytes=1_000_000,
+                           policy=SchedulingPolicy.UTILITY_AWARE)
+        sched.run([emergency, telemetry])
+        self.assertEqual(emergency.terminal_state, TerminalState.DELIVERED)
+        self.assertEqual(telemetry.terminal_state, TerminalState.TTL_EXPIRED)
+
+    def test_utility_pure_ablation_matches_strict_priority_without_at_risk_gate(self):
+        """S2-W6-7, ablation coverage. Reuses the exact scenario from
+        test_deadline_aware_saves_at_risk_bundle_strict_priority_loses to
+        prove UTILITY_PURE (density-sort ONLY, no at-risk gate) behaves
+        like STRICT_PRIORITY here, NOT like UTILITY_AWARE or
+        DEADLINE_AWARE -- this is the ablation's whole point: it isolates
+        how much of UTILITY_AWARE's improvement is specifically due to the
+        at-risk gate (Tier 1), not the density sort alone. EMERGENCY's
+        utility-per-byte (100/90) vastly exceeds TELEMETRY's (10/90), so
+        density-only sorting picks EMERGENCY first -- same as rank order
+        -- and TELEMETRY dies waiting, same failure as STRICT_PRIORITY."""
+        plan = ContactPlan([
+            ContactWindow(contact_id="w0", start_ts=0.0, end_ts=1.0, link_rate_bps=800.0),
+            ContactWindow(contact_id="w1", start_ts=100.0, end_ts=101.0, link_rate_bps=800.0),
+        ])
+
+        emergency = BundleRecord("emg-1", "f1", TrafficClass.EMERGENCY,
+                                  size_bytes=90, ingress_ts=0.0)
+        emergency.set_ttl()  # real default: 300s
+        telemetry = BundleRecord("tel-1", "f2", TrafficClass.TELEMETRY,
+                                  size_bytes=90, ingress_ts=0.0)
+        telemetry.set_ttl(ttl_s=50.0)  # override -- see docstring
+
+        sched = Scheduler(plan, max_queue_bytes=1_000_000,
+                           policy=SchedulingPolicy.UTILITY_PURE)
+        sched.run([emergency, telemetry])
+
+        self.assertEqual(emergency.terminal_state, TerminalState.DELIVERED)
+        self.assertEqual(emergency.contact_id, "w0")
+        # The ablation's core point: without the at-risk gate, UTILITY_PURE
+        # fails TELEMETRY exactly like STRICT_PRIORITY does -- density
+        # sorting alone does not rescue at-risk bundles.
+        self.assertEqual(telemetry.terminal_state, TerminalState.TTL_EXPIRED)
+
 
 
 if __name__ == "__main__":
