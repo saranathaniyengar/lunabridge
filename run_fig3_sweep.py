@@ -6,7 +6,7 @@ CSV_PATH = "gateway/lcrns_relay_contact_plan_1sv.csv"
 os.makedirs("results", exist_ok=True)
 
 R_REAL = [1, 15, 30]
-R_STRESS = [1, 5, 10, 15, 20, 25, 30]
+R_STRESS = [1, 5, 10, 15, 20, 25, 30, 40, 50]
 policies = [p.value for p in SchedulingPolicy]
 
 output = {"meta": {"r_values_real": R_REAL, "r_values_stress": R_STRESS,

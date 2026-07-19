@@ -12,7 +12,9 @@
       15,
       20,
       25,
-      30
+      30,
+      40,
+      50
     ],
     "policies": [
       "fifo",
@@ -118,6 +120,24 @@
       "deadline_aware": -5747482.0,
       "utility_aware": 2298247.0,
       "utility_pure": 2302341.0
+    },
+    "40": {
+      "fifo": -8475612.0,
+      "strict_priority": 3086442.0,
+      "wfq": 3085826.0,
+      "wfq_skip_over": 3085942.0,
+      "deadline_aware": -7923868.0,
+      "utility_aware": 3086442.0,
+      "utility_pure": 3090717.0
+    },
+    "50": {
+      "fifo": -9919242.0,
+      "strict_priority": 3372085.0,
+      "wfq": 3350174.0,
+      "wfq_skip_over": 3357223.0,
+      "deadline_aware": -9386236.0,
+      "utility_aware": 3371874.0,
+      "utility_pure": 3381302.0
     }
   }
 }
