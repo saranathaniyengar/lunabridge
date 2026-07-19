@@ -13,12 +13,15 @@ colors = {"fifo": "#999999", "strict_priority": "#1f77b4", "wfq": "#2ca02c",
           "wfq_skip_over": "#17becf", "deadline_aware": "#d62728",
           "utility_aware": "#9467bd", "utility_pure": "#8c564b"}
 
-fig, axes = plt.subplots(3, 4, figsize=(20, 13), sharex="col")
+fig, axes = plt.subplots(6, 4, figsize=(20, 24), sharex="col")
 
-for row, r in enumerate(r_values):
+row_specs = [("real_by_r", r, f"R={r} (real plan)") for r in r_values] + \
+            [("stress_by_r", r, f"R={r} (stress plan)") for r in r_values]
+
+for row, (data_key, r, row_label) in enumerate(row_specs):
     for col, tc in enumerate(classes):
         ax = axes[row, col]
-        by_r = data["stress_by_r"][tc][str(r)]
+        by_r = data[data_key][tc][str(r)]
         ttl_values = sorted(float(t) for t in by_r.keys())
         for p in policies:
             ys = [by_r[str(t)][p]["own_delivery_ratio"] for t in ttl_values]
@@ -30,13 +33,12 @@ for row, r in enumerate(r_values):
         if row == 0:
             ax.set_title(tc.upper(), fontsize=12, fontweight="bold")
         if col == 0:
-            ax.set_ylabel(f"R={r} (stress plan)\n{tc}'s own delivery ratio", fontsize=9)
-        if row == 2:
+            ax.set_ylabel(f"{row_label}\nown-class delivery ratio", fontsize=9)
+        if row == 5:
             ax.set_xlabel("TTL (s, log scale)", fontsize=9)
 
 axes[0, -1].legend(loc="upper left", fontsize=7, bbox_to_anchor=(1.02, 1))
-fig.suptitle("Fig 8 -- Per-class delivery ratio vs. TTL, across congestion levels R=1/5/20\n"
-             "each column = that class's own TTL swept; other 3 classes stay locked", fontsize=13, y=1.02)
+fig.suptitle("Fig 8 -- Per-class delivery ratio vs. TTL: real plan (top 3 rows) vs. stress plan (bottom 3 rows), R=1/5/20", fontsize=13, y=1.005)
 fig.tight_layout()
 fig.savefig("figures/fig8_ttl_sensitivity.png", dpi=150, bbox_inches="tight")
 print("saved figures/fig8_ttl_sensitivity.png")

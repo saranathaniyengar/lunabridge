@@ -2472,5 +2472,1839 @@
         }
       }
     }
+  },
+  "real_by_r": {
+    "emergency": {
+      "1": {
+        "30.0": {
+          "fifo": {
+            "mission_utility": 74588.0,
+            "own_delivery_ratio": 0.8235294117647058
+          },
+          "strict_priority": {
+            "mission_utility": 74588.0,
+            "own_delivery_ratio": 0.8235294117647058
+          },
+          "wfq": {
+            "mission_utility": 74588.0,
+            "own_delivery_ratio": 0.8235294117647058
+          },
+          "wfq_skip_over": {
+            "mission_utility": 74588.0,
+            "own_delivery_ratio": 0.8235294117647058
+          },
+          "deadline_aware": {
+            "mission_utility": 74588.0,
+            "own_delivery_ratio": 0.8235294117647058
+          },
+          "utility_aware": {
+            "mission_utility": 74588.0,
+            "own_delivery_ratio": 0.8235294117647058
+          },
+          "utility_pure": {
+            "mission_utility": 74588.0,
+            "own_delivery_ratio": 0.8235294117647058
+          }
+        },
+        "94.8": {
+          "fifo": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8280542986425339
+          },
+          "strict_priority": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8280542986425339
+          },
+          "wfq": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8280542986425339
+          },
+          "wfq_skip_over": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8280542986425339
+          },
+          "deadline_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8280542986425339
+          },
+          "utility_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8280542986425339
+          },
+          "utility_pure": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8280542986425339
+          }
+        },
+        "300.0": {
+          "fifo": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8280542986425339
+          },
+          "strict_priority": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8280542986425339
+          },
+          "wfq": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8280542986425339
+          },
+          "wfq_skip_over": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8280542986425339
+          },
+          "deadline_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8280542986425339
+          },
+          "utility_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8280542986425339
+          },
+          "utility_pure": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8280542986425339
+          }
+        },
+        "948.0": {
+          "fifo": {
+            "mission_utility": 76788.0,
+            "own_delivery_ratio": 0.832579185520362
+          },
+          "strict_priority": {
+            "mission_utility": 76788.0,
+            "own_delivery_ratio": 0.832579185520362
+          },
+          "wfq": {
+            "mission_utility": 76788.0,
+            "own_delivery_ratio": 0.832579185520362
+          },
+          "wfq_skip_over": {
+            "mission_utility": 76788.0,
+            "own_delivery_ratio": 0.832579185520362
+          },
+          "deadline_aware": {
+            "mission_utility": 76788.0,
+            "own_delivery_ratio": 0.832579185520362
+          },
+          "utility_aware": {
+            "mission_utility": 76788.0,
+            "own_delivery_ratio": 0.832579185520362
+          },
+          "utility_pure": {
+            "mission_utility": 76788.0,
+            "own_delivery_ratio": 0.832579185520362
+          }
+        },
+        "3000.0": {
+          "fifo": {
+            "mission_utility": 85588.0,
+            "own_delivery_ratio": 0.8687782805429864
+          },
+          "strict_priority": {
+            "mission_utility": 85588.0,
+            "own_delivery_ratio": 0.8687782805429864
+          },
+          "wfq": {
+            "mission_utility": 85588.0,
+            "own_delivery_ratio": 0.8687782805429864
+          },
+          "wfq_skip_over": {
+            "mission_utility": 85588.0,
+            "own_delivery_ratio": 0.8687782805429864
+          },
+          "deadline_aware": {
+            "mission_utility": 85588.0,
+            "own_delivery_ratio": 0.8687782805429864
+          },
+          "utility_aware": {
+            "mission_utility": 85588.0,
+            "own_delivery_ratio": 0.8687782805429864
+          },
+          "utility_pure": {
+            "mission_utility": 85588.0,
+            "own_delivery_ratio": 0.8687782805429864
+          }
+        }
+      },
+      "5": {
+        "30.0": {
+          "fifo": {
+            "mission_utility": 375136.0,
+            "own_delivery_ratio": 0.8246753246753247
+          },
+          "strict_priority": {
+            "mission_utility": 375136.0,
+            "own_delivery_ratio": 0.8246753246753247
+          },
+          "wfq": {
+            "mission_utility": 375136.0,
+            "own_delivery_ratio": 0.8246753246753247
+          },
+          "wfq_skip_over": {
+            "mission_utility": 375136.0,
+            "own_delivery_ratio": 0.8246753246753247
+          },
+          "deadline_aware": {
+            "mission_utility": 375136.0,
+            "own_delivery_ratio": 0.8246753246753247
+          },
+          "utility_aware": {
+            "mission_utility": 375136.0,
+            "own_delivery_ratio": 0.8246753246753247
+          },
+          "utility_pure": {
+            "mission_utility": 375136.0,
+            "own_delivery_ratio": 0.8246753246753247
+          }
+        },
+        "94.8": {
+          "fifo": {
+            "mission_utility": 375136.0,
+            "own_delivery_ratio": 0.8246753246753247
+          },
+          "strict_priority": {
+            "mission_utility": 375136.0,
+            "own_delivery_ratio": 0.8246753246753247
+          },
+          "wfq": {
+            "mission_utility": 375136.0,
+            "own_delivery_ratio": 0.8246753246753247
+          },
+          "wfq_skip_over": {
+            "mission_utility": 375136.0,
+            "own_delivery_ratio": 0.8246753246753247
+          },
+          "deadline_aware": {
+            "mission_utility": 375136.0,
+            "own_delivery_ratio": 0.8246753246753247
+          },
+          "utility_aware": {
+            "mission_utility": 375136.0,
+            "own_delivery_ratio": 0.8246753246753247
+          },
+          "utility_pure": {
+            "mission_utility": 375136.0,
+            "own_delivery_ratio": 0.8246753246753247
+          }
+        },
+        "300.0": {
+          "fifo": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8256029684601113
+          },
+          "strict_priority": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8256029684601113
+          },
+          "wfq": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8256029684601113
+          },
+          "wfq_skip_over": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8256029684601113
+          },
+          "deadline_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8256029684601113
+          },
+          "utility_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8256029684601113
+          },
+          "utility_pure": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8256029684601113
+          }
+        },
+        "948.0": {
+          "fifo": {
+            "mission_utility": 382836.0,
+            "own_delivery_ratio": 0.8311688311688312
+          },
+          "strict_priority": {
+            "mission_utility": 382836.0,
+            "own_delivery_ratio": 0.8311688311688312
+          },
+          "wfq": {
+            "mission_utility": 382836.0,
+            "own_delivery_ratio": 0.8311688311688312
+          },
+          "wfq_skip_over": {
+            "mission_utility": 382836.0,
+            "own_delivery_ratio": 0.8311688311688312
+          },
+          "deadline_aware": {
+            "mission_utility": 382836.0,
+            "own_delivery_ratio": 0.8311688311688312
+          },
+          "utility_aware": {
+            "mission_utility": 382836.0,
+            "own_delivery_ratio": 0.8311688311688312
+          },
+          "utility_pure": {
+            "mission_utility": 382836.0,
+            "own_delivery_ratio": 0.8311688311688312
+          }
+        },
+        "3000.0": {
+          "fifo": {
+            "mission_utility": 404836.0,
+            "own_delivery_ratio": 0.849721706864564
+          },
+          "strict_priority": {
+            "mission_utility": 404836.0,
+            "own_delivery_ratio": 0.849721706864564
+          },
+          "wfq": {
+            "mission_utility": 404836.0,
+            "own_delivery_ratio": 0.849721706864564
+          },
+          "wfq_skip_over": {
+            "mission_utility": 404836.0,
+            "own_delivery_ratio": 0.849721706864564
+          },
+          "deadline_aware": {
+            "mission_utility": 404836.0,
+            "own_delivery_ratio": 0.849721706864564
+          },
+          "utility_aware": {
+            "mission_utility": 404836.0,
+            "own_delivery_ratio": 0.849721706864564
+          },
+          "utility_pure": {
+            "mission_utility": 404836.0,
+            "own_delivery_ratio": 0.849721706864564
+          }
+        }
+      },
+      "20": {
+        "30.0": {
+          "fifo": {
+            "mission_utility": 1524656.0,
+            "own_delivery_ratio": 0.8307481751824818
+          },
+          "strict_priority": {
+            "mission_utility": 1524656.0,
+            "own_delivery_ratio": 0.8307481751824818
+          },
+          "wfq": {
+            "mission_utility": 1524656.0,
+            "own_delivery_ratio": 0.8307481751824818
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1524656.0,
+            "own_delivery_ratio": 0.8307481751824818
+          },
+          "deadline_aware": {
+            "mission_utility": 1524656.0,
+            "own_delivery_ratio": 0.8307481751824818
+          },
+          "utility_aware": {
+            "mission_utility": 1524656.0,
+            "own_delivery_ratio": 0.8307481751824818
+          },
+          "utility_pure": {
+            "mission_utility": 1524656.0,
+            "own_delivery_ratio": 0.8307481751824818
+          }
+        },
+        "94.8": {
+          "fifo": {
+            "mission_utility": 1525756.0,
+            "own_delivery_ratio": 0.8309762773722628
+          },
+          "strict_priority": {
+            "mission_utility": 1525756.0,
+            "own_delivery_ratio": 0.8309762773722628
+          },
+          "wfq": {
+            "mission_utility": 1525756.0,
+            "own_delivery_ratio": 0.8309762773722628
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1525756.0,
+            "own_delivery_ratio": 0.8309762773722628
+          },
+          "deadline_aware": {
+            "mission_utility": 1525756.0,
+            "own_delivery_ratio": 0.8309762773722628
+          },
+          "utility_aware": {
+            "mission_utility": 1525756.0,
+            "own_delivery_ratio": 0.8309762773722628
+          },
+          "utility_pure": {
+            "mission_utility": 1525756.0,
+            "own_delivery_ratio": 0.8309762773722628
+          }
+        },
+        "300.0": {
+          "fifo": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8328010948905109
+          },
+          "strict_priority": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8328010948905109
+          },
+          "wfq": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8328010948905109
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8328010948905109
+          },
+          "deadline_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8328010948905109
+          },
+          "utility_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8328010948905109
+          },
+          "utility_pure": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8328010948905109
+          }
+        },
+        "948.0": {
+          "fifo": {
+            "mission_utility": 1568656.0,
+            "own_delivery_ratio": 0.8398722627737226
+          },
+          "strict_priority": {
+            "mission_utility": 1568656.0,
+            "own_delivery_ratio": 0.8398722627737226
+          },
+          "wfq": {
+            "mission_utility": 1568656.0,
+            "own_delivery_ratio": 0.8398722627737226
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1568656.0,
+            "own_delivery_ratio": 0.8398722627737226
+          },
+          "deadline_aware": {
+            "mission_utility": 1568656.0,
+            "own_delivery_ratio": 0.8398722627737226
+          },
+          "utility_aware": {
+            "mission_utility": 1568656.0,
+            "own_delivery_ratio": 0.8398722627737226
+          },
+          "utility_pure": {
+            "mission_utility": 1568656.0,
+            "own_delivery_ratio": 0.8398722627737226
+          }
+        },
+        "3000.0": {
+          "fifo": {
+            "mission_utility": 1650056.0,
+            "own_delivery_ratio": 0.8567518248175182
+          },
+          "strict_priority": {
+            "mission_utility": 1650056.0,
+            "own_delivery_ratio": 0.8567518248175182
+          },
+          "wfq": {
+            "mission_utility": 1650056.0,
+            "own_delivery_ratio": 0.8567518248175182
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1650056.0,
+            "own_delivery_ratio": 0.8567518248175182
+          },
+          "deadline_aware": {
+            "mission_utility": 1650056.0,
+            "own_delivery_ratio": 0.8567518248175182
+          },
+          "utility_aware": {
+            "mission_utility": 1650056.0,
+            "own_delivery_ratio": 0.8567518248175182
+          },
+          "utility_pure": {
+            "mission_utility": 1650056.0,
+            "own_delivery_ratio": 0.8567518248175182
+          }
+        }
+      }
+    },
+    "telemetry": {
+      "1": {
+        "360.0": {
+          "fifo": {
+            "mission_utility": 72428.0,
+            "own_delivery_ratio": 0.8404432132963989
+          },
+          "strict_priority": {
+            "mission_utility": 72428.0,
+            "own_delivery_ratio": 0.8404432132963989
+          },
+          "wfq": {
+            "mission_utility": 72428.0,
+            "own_delivery_ratio": 0.8404432132963989
+          },
+          "wfq_skip_over": {
+            "mission_utility": 72428.0,
+            "own_delivery_ratio": 0.8404432132963989
+          },
+          "deadline_aware": {
+            "mission_utility": 72428.0,
+            "own_delivery_ratio": 0.8404432132963989
+          },
+          "utility_aware": {
+            "mission_utility": 72428.0,
+            "own_delivery_ratio": 0.8404432132963989
+          },
+          "utility_pure": {
+            "mission_utility": 72428.0,
+            "own_delivery_ratio": 0.8404432132963989
+          }
+        },
+        "1137.6": {
+          "fifo": {
+            "mission_utility": 73248.0,
+            "own_delivery_ratio": 0.8480147737765467
+          },
+          "strict_priority": {
+            "mission_utility": 73248.0,
+            "own_delivery_ratio": 0.8480147737765467
+          },
+          "wfq": {
+            "mission_utility": 73248.0,
+            "own_delivery_ratio": 0.8480147737765467
+          },
+          "wfq_skip_over": {
+            "mission_utility": 73248.0,
+            "own_delivery_ratio": 0.8480147737765467
+          },
+          "deadline_aware": {
+            "mission_utility": 73248.0,
+            "own_delivery_ratio": 0.8480147737765467
+          },
+          "utility_aware": {
+            "mission_utility": 73248.0,
+            "own_delivery_ratio": 0.8480147737765467
+          },
+          "utility_pure": {
+            "mission_utility": 73248.0,
+            "own_delivery_ratio": 0.8480147737765467
+          }
+        },
+        "3600.0": {
+          "fifo": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8705447830101569
+          },
+          "strict_priority": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8705447830101569
+          },
+          "wfq": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8705447830101569
+          },
+          "wfq_skip_over": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8705447830101569
+          },
+          "deadline_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8705447830101569
+          },
+          "utility_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8705447830101569
+          },
+          "utility_pure": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8705447830101569
+          }
+        },
+        "11376.0": {
+          "fifo": {
+            "mission_utility": 83148.0,
+            "own_delivery_ratio": 0.9394275161588181
+          },
+          "strict_priority": {
+            "mission_utility": 83148.0,
+            "own_delivery_ratio": 0.9394275161588181
+          },
+          "wfq": {
+            "mission_utility": 83148.0,
+            "own_delivery_ratio": 0.9394275161588181
+          },
+          "wfq_skip_over": {
+            "mission_utility": 83148.0,
+            "own_delivery_ratio": 0.9394275161588181
+          },
+          "deadline_aware": {
+            "mission_utility": 83148.0,
+            "own_delivery_ratio": 0.9394275161588181
+          },
+          "utility_aware": {
+            "mission_utility": 83148.0,
+            "own_delivery_ratio": 0.9394275161588181
+          },
+          "utility_pure": {
+            "mission_utility": 83148.0,
+            "own_delivery_ratio": 0.9394275161588181
+          }
+        },
+        "36000.0": {
+          "fifo": {
+            "mission_utility": 89708.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 89708.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 89708.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 89708.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 89708.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 89708.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 89708.0,
+            "own_delivery_ratio": 1.0
+          }
+        }
+      },
+      "5": {
+        "360.0": {
+          "fifo": {
+            "mission_utility": 359366.0,
+            "own_delivery_ratio": 0.8386547151640862
+          },
+          "strict_priority": {
+            "mission_utility": 359366.0,
+            "own_delivery_ratio": 0.8386547151640862
+          },
+          "wfq": {
+            "mission_utility": 359366.0,
+            "own_delivery_ratio": 0.8386547151640862
+          },
+          "wfq_skip_over": {
+            "mission_utility": 359366.0,
+            "own_delivery_ratio": 0.8386547151640862
+          },
+          "deadline_aware": {
+            "mission_utility": 359366.0,
+            "own_delivery_ratio": 0.8386547151640862
+          },
+          "utility_aware": {
+            "mission_utility": 359366.0,
+            "own_delivery_ratio": 0.8386547151640862
+          },
+          "utility_pure": {
+            "mission_utility": 359366.0,
+            "own_delivery_ratio": 0.8386547151640862
+          }
+        },
+        "1137.6": {
+          "fifo": {
+            "mission_utility": 364106.0,
+            "own_delivery_ratio": 0.8474331431957923
+          },
+          "strict_priority": {
+            "mission_utility": 364106.0,
+            "own_delivery_ratio": 0.8474331431957923
+          },
+          "wfq": {
+            "mission_utility": 364106.0,
+            "own_delivery_ratio": 0.8474331431957923
+          },
+          "wfq_skip_over": {
+            "mission_utility": 364106.0,
+            "own_delivery_ratio": 0.8474331431957923
+          },
+          "deadline_aware": {
+            "mission_utility": 364106.0,
+            "own_delivery_ratio": 0.8474331431957923
+          },
+          "utility_aware": {
+            "mission_utility": 364106.0,
+            "own_delivery_ratio": 0.8474331431957923
+          },
+          "utility_pure": {
+            "mission_utility": 364106.0,
+            "own_delivery_ratio": 0.8474331431957923
+          }
+        },
+        "3600.0": {
+          "fifo": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8698977702052004
+          },
+          "strict_priority": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8698977702052004
+          },
+          "wfq": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8698977702052004
+          },
+          "wfq_skip_over": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8698977702052004
+          },
+          "deadline_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8698977702052004
+          },
+          "utility_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8698977702052004
+          },
+          "utility_pure": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8698977702052004
+          }
+        },
+        "11376.0": {
+          "fifo": {
+            "mission_utility": 414426.0,
+            "own_delivery_ratio": 0.9406252314986295
+          },
+          "strict_priority": {
+            "mission_utility": 414426.0,
+            "own_delivery_ratio": 0.9406252314986295
+          },
+          "wfq": {
+            "mission_utility": 414426.0,
+            "own_delivery_ratio": 0.9406252314986295
+          },
+          "wfq_skip_over": {
+            "mission_utility": 414426.0,
+            "own_delivery_ratio": 0.9406252314986295
+          },
+          "deadline_aware": {
+            "mission_utility": 414426.0,
+            "own_delivery_ratio": 0.9406252314986295
+          },
+          "utility_aware": {
+            "mission_utility": 414426.0,
+            "own_delivery_ratio": 0.9406252314986295
+          },
+          "utility_pure": {
+            "mission_utility": 414426.0,
+            "own_delivery_ratio": 0.9406252314986295
+          }
+        },
+        "36000.0": {
+          "fifo": {
+            "mission_utility": 446486.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 446486.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 446486.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 446486.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 446486.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 446486.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 446486.0,
+            "own_delivery_ratio": 1.0
+          }
+        }
+      },
+      "20": {
+        "360.0": {
+          "fifo": {
+            "mission_utility": 1468386.0,
+            "own_delivery_ratio": 0.836802080787305
+          },
+          "strict_priority": {
+            "mission_utility": 1468386.0,
+            "own_delivery_ratio": 0.836802080787305
+          },
+          "wfq": {
+            "mission_utility": 1468386.0,
+            "own_delivery_ratio": 0.836802080787305
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1468386.0,
+            "own_delivery_ratio": 0.836802080787305
+          },
+          "deadline_aware": {
+            "mission_utility": 1468386.0,
+            "own_delivery_ratio": 0.836802080787305
+          },
+          "utility_aware": {
+            "mission_utility": 1468386.0,
+            "own_delivery_ratio": 0.836802080787305
+          },
+          "utility_pure": {
+            "mission_utility": 1468386.0,
+            "own_delivery_ratio": 0.836802080787305
+          }
+        },
+        "1137.6": {
+          "fifo": {
+            "mission_utility": 1484416.0,
+            "own_delivery_ratio": 0.8441945941957472
+          },
+          "strict_priority": {
+            "mission_utility": 1484416.0,
+            "own_delivery_ratio": 0.8441945941957472
+          },
+          "wfq": {
+            "mission_utility": 1484416.0,
+            "own_delivery_ratio": 0.8441945941957472
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1484416.0,
+            "own_delivery_ratio": 0.8441945941957472
+          },
+          "deadline_aware": {
+            "mission_utility": 1484416.0,
+            "own_delivery_ratio": 0.8441945941957472
+          },
+          "utility_aware": {
+            "mission_utility": 1484416.0,
+            "own_delivery_ratio": 0.8441945941957472
+          },
+          "utility_pure": {
+            "mission_utility": 1484416.0,
+            "own_delivery_ratio": 0.8441945941957472
+          }
+        },
+        "3600.0": {
+          "fifo": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8673175275893397
+          },
+          "strict_priority": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8673175275893397
+          },
+          "wfq": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8673175275893397
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8673175275893397
+          },
+          "deadline_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8673175275893397
+          },
+          "utility_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8673175275893397
+          },
+          "utility_pure": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8673175275893397
+          }
+        },
+        "11376.0": {
+          "fifo": {
+            "mission_utility": 1691596.0,
+            "own_delivery_ratio": 0.9397392559525182
+          },
+          "strict_priority": {
+            "mission_utility": 1691596.0,
+            "own_delivery_ratio": 0.9397392559525182
+          },
+          "wfq": {
+            "mission_utility": 1691596.0,
+            "own_delivery_ratio": 0.9397392559525182
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1691596.0,
+            "own_delivery_ratio": 0.9397392559525182
+          },
+          "deadline_aware": {
+            "mission_utility": 1691596.0,
+            "own_delivery_ratio": 0.9397392559525182
+          },
+          "utility_aware": {
+            "mission_utility": 1691596.0,
+            "own_delivery_ratio": 0.9397392559525182
+          },
+          "utility_pure": {
+            "mission_utility": 1691596.0,
+            "own_delivery_ratio": 0.9397392559525182
+          }
+        },
+        "36000.0": {
+          "fifo": {
+            "mission_utility": 1822266.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 1822266.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 1822266.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1822266.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 1822266.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 1822266.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 1822266.0,
+            "own_delivery_ratio": 1.0
+          }
+        }
+      }
+    },
+    "sci_bulk": {
+      "1": {
+        "5760.0": {
+          "fifo": {
+            "mission_utility": 75578.0,
+            "own_delivery_ratio": 0.9007220216606499
+          },
+          "strict_priority": {
+            "mission_utility": 75578.0,
+            "own_delivery_ratio": 0.9007220216606499
+          },
+          "wfq": {
+            "mission_utility": 75578.0,
+            "own_delivery_ratio": 0.9007220216606499
+          },
+          "wfq_skip_over": {
+            "mission_utility": 75578.0,
+            "own_delivery_ratio": 0.9007220216606499
+          },
+          "deadline_aware": {
+            "mission_utility": 75578.0,
+            "own_delivery_ratio": 0.9007220216606499
+          },
+          "utility_aware": {
+            "mission_utility": 75578.0,
+            "own_delivery_ratio": 0.9007220216606499
+          },
+          "utility_pure": {
+            "mission_utility": 75578.0,
+            "own_delivery_ratio": 0.9007220216606499
+          }
+        },
+        "18201.6": {
+          "fifo": {
+            "mission_utility": 75684.0,
+            "own_delivery_ratio": 0.9963898916967509
+          },
+          "strict_priority": {
+            "mission_utility": 75684.0,
+            "own_delivery_ratio": 0.9963898916967509
+          },
+          "wfq": {
+            "mission_utility": 75684.0,
+            "own_delivery_ratio": 0.9963898916967509
+          },
+          "wfq_skip_over": {
+            "mission_utility": 75684.0,
+            "own_delivery_ratio": 0.9963898916967509
+          },
+          "deadline_aware": {
+            "mission_utility": 75684.0,
+            "own_delivery_ratio": 0.9963898916967509
+          },
+          "utility_aware": {
+            "mission_utility": 75684.0,
+            "own_delivery_ratio": 0.9963898916967509
+          },
+          "utility_pure": {
+            "mission_utility": 75684.0,
+            "own_delivery_ratio": 0.9963898916967509
+          }
+        },
+        "57600.0": {
+          "fifo": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          }
+        },
+        "182016.0": {
+          "fifo": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          }
+        },
+        "576000.0": {
+          "fifo": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          }
+        }
+      },
+      "5": {
+        "5760.0": {
+          "fifo": {
+            "mission_utility": 375596.0,
+            "own_delivery_ratio": 0.8841838581252262
+          },
+          "strict_priority": {
+            "mission_utility": 375596.0,
+            "own_delivery_ratio": 0.8841838581252262
+          },
+          "wfq": {
+            "mission_utility": 375596.0,
+            "own_delivery_ratio": 0.8841838581252262
+          },
+          "wfq_skip_over": {
+            "mission_utility": 375596.0,
+            "own_delivery_ratio": 0.8841838581252262
+          },
+          "deadline_aware": {
+            "mission_utility": 375596.0,
+            "own_delivery_ratio": 0.8841838581252262
+          },
+          "utility_aware": {
+            "mission_utility": 375596.0,
+            "own_delivery_ratio": 0.8841838581252262
+          },
+          "utility_pure": {
+            "mission_utility": 375596.0,
+            "own_delivery_ratio": 0.8841838581252262
+          }
+        },
+        "18201.6": {
+          "fifo": {
+            "mission_utility": 376224.0,
+            "own_delivery_ratio": 0.997828447339848
+          },
+          "strict_priority": {
+            "mission_utility": 376224.0,
+            "own_delivery_ratio": 0.997828447339848
+          },
+          "wfq": {
+            "mission_utility": 376224.0,
+            "own_delivery_ratio": 0.997828447339848
+          },
+          "wfq_skip_over": {
+            "mission_utility": 376224.0,
+            "own_delivery_ratio": 0.997828447339848
+          },
+          "deadline_aware": {
+            "mission_utility": 376224.0,
+            "own_delivery_ratio": 0.997828447339848
+          },
+          "utility_aware": {
+            "mission_utility": 376224.0,
+            "own_delivery_ratio": 0.997828447339848
+          },
+          "utility_pure": {
+            "mission_utility": 376224.0,
+            "own_delivery_ratio": 0.997828447339848
+          }
+        },
+        "57600.0": {
+          "fifo": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          }
+        },
+        "182016.0": {
+          "fifo": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          }
+        },
+        "576000.0": {
+          "fifo": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          }
+        }
+      },
+      "20": {
+        "5760.0": {
+          "fifo": {
+            "mission_utility": 1532102.0,
+            "own_delivery_ratio": 0.8872035300606729
+          },
+          "strict_priority": {
+            "mission_utility": 1532102.0,
+            "own_delivery_ratio": 0.8872035300606729
+          },
+          "wfq": {
+            "mission_utility": 1532102.0,
+            "own_delivery_ratio": 0.8872035300606729
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1532102.0,
+            "own_delivery_ratio": 0.8872035300606729
+          },
+          "deadline_aware": {
+            "mission_utility": 1532102.0,
+            "own_delivery_ratio": 0.8872035300606729
+          },
+          "utility_aware": {
+            "mission_utility": 1532102.0,
+            "own_delivery_ratio": 0.8872035300606729
+          },
+          "utility_pure": {
+            "mission_utility": 1532102.0,
+            "own_delivery_ratio": 0.8872035300606729
+          }
+        },
+        "18201.6": {
+          "fifo": {
+            "mission_utility": 1534483.0,
+            "own_delivery_ratio": 0.9966446037874609
+          },
+          "strict_priority": {
+            "mission_utility": 1534483.0,
+            "own_delivery_ratio": 0.9966446037874609
+          },
+          "wfq": {
+            "mission_utility": 1534483.0,
+            "own_delivery_ratio": 0.9966446037874609
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1534483.0,
+            "own_delivery_ratio": 0.9966446037874609
+          },
+          "deadline_aware": {
+            "mission_utility": 1534483.0,
+            "own_delivery_ratio": 0.9966446037874609
+          },
+          "utility_aware": {
+            "mission_utility": 1534483.0,
+            "own_delivery_ratio": 0.9966446037874609
+          },
+          "utility_pure": {
+            "mission_utility": 1534483.0,
+            "own_delivery_ratio": 0.9966446037874609
+          }
+        },
+        "57600.0": {
+          "fifo": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          }
+        },
+        "182016.0": {
+          "fifo": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          }
+        },
+        "576000.0": {
+          "fifo": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          }
+        }
+      }
+    },
+    "media": {
+      "1": {
+        "360.0": {
+          "fifo": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8330616996507567
+          },
+          "strict_priority": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8330616996507567
+          },
+          "wfq": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8330616996507567
+          },
+          "wfq_skip_over": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8330616996507567
+          },
+          "deadline_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8330616996507567
+          },
+          "utility_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8330616996507567
+          },
+          "utility_pure": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8330616996507567
+          }
+        },
+        "1137.6": {
+          "fifo": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8412107101280559
+          },
+          "strict_priority": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8412107101280559
+          },
+          "wfq": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8412107101280559
+          },
+          "wfq_skip_over": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8412107101280559
+          },
+          "deadline_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8412107101280559
+          },
+          "utility_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8412107101280559
+          },
+          "utility_pure": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8412107101280559
+          }
+        },
+        "3600.0": {
+          "fifo": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8635622817229336
+          },
+          "strict_priority": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8635622817229336
+          },
+          "wfq": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8635622817229336
+          },
+          "wfq_skip_over": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8635622817229336
+          },
+          "deadline_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8635622817229336
+          },
+          "utility_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8635622817229336
+          },
+          "utility_pure": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.8635622817229336
+          }
+        },
+        "11376.0": {
+          "fifo": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.9378346915017463
+          },
+          "strict_priority": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.9378346915017463
+          },
+          "wfq": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.9378346915017463
+          },
+          "wfq_skip_over": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.9378346915017463
+          },
+          "deadline_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.9378346915017463
+          },
+          "utility_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.9378346915017463
+          },
+          "utility_pure": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 0.9378346915017463
+          }
+        },
+        "36000.0": {
+          "fifo": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 75688.0,
+            "own_delivery_ratio": 1.0
+          }
+        }
+      },
+      "5": {
+        "360.0": {
+          "fifo": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8407190055912388
+          },
+          "strict_priority": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8407190055912388
+          },
+          "wfq": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8407190055912388
+          },
+          "wfq_skip_over": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8407190055912388
+          },
+          "deadline_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8407190055912388
+          },
+          "utility_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8407190055912388
+          },
+          "utility_pure": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8407190055912388
+          }
+        },
+        "1137.6": {
+          "fifo": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8468647474700799
+          },
+          "strict_priority": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8468647474700799
+          },
+          "wfq": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8468647474700799
+          },
+          "wfq_skip_over": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8468647474700799
+          },
+          "deadline_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8468647474700799
+          },
+          "utility_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8468647474700799
+          },
+          "utility_pure": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8468647474700799
+          }
+        },
+        "3600.0": {
+          "fifo": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8708470033732267
+          },
+          "strict_priority": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8708470033732267
+          },
+          "wfq": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8708470033732267
+          },
+          "wfq_skip_over": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8708470033732267
+          },
+          "deadline_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8708470033732267
+          },
+          "utility_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8708470033732267
+          },
+          "utility_pure": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.8708470033732267
+          }
+        },
+        "11376.0": {
+          "fifo": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.9414075135160113
+          },
+          "strict_priority": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.9414075135160113
+          },
+          "wfq": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.9414075135160113
+          },
+          "wfq_skip_over": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.9414075135160113
+          },
+          "deadline_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.9414075135160113
+          },
+          "utility_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.9414075135160113
+          },
+          "utility_pure": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 0.9414075135160113
+          }
+        },
+        "36000.0": {
+          "fifo": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 376236.0,
+            "own_delivery_ratio": 1.0
+          }
+        }
+      },
+      "20": {
+        "360.0": {
+          "fifo": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8378180635720673
+          },
+          "strict_priority": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8378180635720673
+          },
+          "wfq": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8378180635720673
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8378180635720673
+          },
+          "deadline_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8378180635720673
+          },
+          "utility_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8378180635720673
+          },
+          "utility_pure": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8378180635720673
+          }
+        },
+        "1137.6": {
+          "fifo": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8457152147908997
+          },
+          "strict_priority": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8457152147908997
+          },
+          "wfq": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8457152147908997
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8457152147908997
+          },
+          "deadline_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8457152147908997
+          },
+          "utility_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8457152147908997
+          },
+          "utility_pure": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8457152147908997
+          }
+        },
+        "3600.0": {
+          "fifo": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8695344164818192
+          },
+          "strict_priority": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8695344164818192
+          },
+          "wfq": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8695344164818192
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8695344164818192
+          },
+          "deadline_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8695344164818192
+          },
+          "utility_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8695344164818192
+          },
+          "utility_pure": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.8695344164818192
+          }
+        },
+        "11376.0": {
+          "fifo": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.9404810294168883
+          },
+          "strict_priority": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.9404810294168883
+          },
+          "wfq": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.9404810294168883
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.9404810294168883
+          },
+          "deadline_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.9404810294168883
+          },
+          "utility_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.9404810294168883
+          },
+          "utility_pure": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 0.9404810294168883
+          }
+        },
+        "36000.0": {
+          "fifo": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "strict_priority": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "wfq_skip_over": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "deadline_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_aware": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          },
+          "utility_pure": {
+            "mission_utility": 1534556.0,
+            "own_delivery_ratio": 1.0
+          }
+        }
+      }
+    }
   }
 }
