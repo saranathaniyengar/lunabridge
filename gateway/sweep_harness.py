@@ -31,11 +31,6 @@ def load_real_contact_plan(csv_path: str) -> ContactPlan:
 
 
 def load_stress_contact_plan(csv_path: str, rate_bps_override: float) -> ContactPlan:
-    """Same real window timing as the real plan, link_rate_bps replaced.
-    NOT a claimed real spec -- forces genuine bandwidth scarcity so the 7
-    policies' real differences show up (real 10 Mbps rate makes every
-    window's budget vastly exceed any realistic backlog -- confirmed R~890
-    would be needed to matter, computationally intractable)."""
     windows = []
     with open(csv_path, newline="") as f:
         reader = csv.DictReader(f)
@@ -85,11 +80,17 @@ def sweep_R(r_values: List[float], csv_path: str, seed: int = 42,
 
 
 def sweep_ttl(traffic_class: TrafficClass, ttl_values: List[float],
-              csv_path: str, seed: int = 42) -> Dict[float, Dict[str, dict]]:
-    plan = load_real_contact_plan(csv_path)
+              csv_path: str, seed: int = 42, rate_multiplier: float = 1.0,
+              stress: bool = False, stress_rate_bps: float = 10_000.0) -> Dict[float, Dict[str, dict]]:
+    """Fig 8: for each candidate TTL, override ONLY traffic_class's TTL on
+    the generated bundles -- every other class keeps its locked TTL.
+    rate_multiplier lets this run at a fixed congestion level (e.g. R=20,
+    the clean/understood zone from Fig 3) rather than only R=1."""
+    plan = (load_stress_contact_plan(csv_path, stress_rate_bps) if stress
+            else load_real_contact_plan(csv_path))
     results = {}
     for ttl in ttl_values:
-        bundles = generate_workload(seed=seed)
+        bundles = generate_workload(seed=seed, rate_multiplier=rate_multiplier)
         for b in bundles:
             if b.traffic_class is traffic_class:
                 b.set_ttl(ttl_s=ttl)
