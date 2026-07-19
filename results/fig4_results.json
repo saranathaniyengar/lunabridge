@@ -1,0 +1,150 @@
+{
+  "meta": {
+    "fixed_r": 20,
+    "n_bundles": 329088
+  },
+  "breakdown": {
+    "fifo": {
+      "telemetry": {
+        "ttl_expired": 215053,
+        "delivered": 1688,
+        "never_scheduled": 100
+      },
+      "sci_bulk": {
+        "delivered": 951,
+        "ttl_expired": 20644,
+        "never_scheduled": 161
+      },
+      "media": {
+        "ttl_expired": 85541,
+        "delivered": 523,
+        "never_scheduled": 43
+      },
+      "emergency": {
+        "ttl_expired": 4247,
+        "delivered": 137
+      }
+    },
+    "strict_priority": {
+      "telemetry": {
+        "ttl_expired": 28771,
+        "delivered": 188070
+      },
+      "sci_bulk": {
+        "delivered": 852,
+        "ttl_expired": 20743,
+        "never_scheduled": 161
+      },
+      "media": {
+        "ttl_expired": 85408,
+        "delivered": 656,
+        "never_scheduled": 43
+      },
+      "emergency": {
+        "ttl_expired": 733,
+        "delivered": 3651
+      }
+    },
+    "wfq": {
+      "telemetry": {
+        "ttl_expired": 28771,
+        "delivered": 188070
+      },
+      "sci_bulk": {
+        "ttl_expired": 21465,
+        "delivered": 130,
+        "never_scheduled": 161
+      },
+      "media": {
+        "ttl_expired": 73833,
+        "delivered": 12231,
+        "never_scheduled": 43
+      },
+      "emergency": {
+        "ttl_expired": 733,
+        "delivered": 3651
+      }
+    },
+    "wfq_skip_over": {
+      "telemetry": {
+        "ttl_expired": 28771,
+        "delivered": 188070
+      },
+      "sci_bulk": {
+        "ttl_expired": 21344,
+        "delivered": 251,
+        "never_scheduled": 161
+      },
+      "media": {
+        "ttl_expired": 73758,
+        "delivered": 12306,
+        "never_scheduled": 43
+      },
+      "emergency": {
+        "ttl_expired": 733,
+        "delivered": 3651
+      }
+    },
+    "deadline_aware": {
+      "telemetry": {
+        "ttl_expired": 200744,
+        "delivered": 15997,
+        "never_scheduled": 100
+      },
+      "sci_bulk": {
+        "delivered": 867,
+        "ttl_expired": 20728,
+        "never_scheduled": 161
+      },
+      "media": {
+        "ttl_expired": 79651,
+        "delivered": 6413,
+        "never_scheduled": 43
+      },
+      "emergency": {
+        "ttl_expired": 3931,
+        "delivered": 453
+      }
+    },
+    "utility_aware": {
+      "telemetry": {
+        "ttl_expired": 28771,
+        "delivered": 188070
+      },
+      "sci_bulk": {
+        "delivered": 852,
+        "ttl_expired": 20743,
+        "never_scheduled": 161
+      },
+      "media": {
+        "ttl_expired": 85408,
+        "delivered": 656,
+        "never_scheduled": 43
+      },
+      "emergency": {
+        "ttl_expired": 733,
+        "delivered": 3651
+      }
+    },
+    "utility_pure": {
+      "telemetry": {
+        "ttl_expired": 28771,
+        "delivered": 188070
+      },
+      "sci_bulk": {
+        "ttl_expired": 16997,
+        "delivered": 4626,
+        "never_scheduled": 133
+      },
+      "media": {
+        "ttl_expired": 84408,
+        "delivered": 1656,
+        "never_scheduled": 43
+      },
+      "emergency": {
+        "ttl_expired": 733,
+        "delivered": 3651
+      }
+    }
+  }
+}

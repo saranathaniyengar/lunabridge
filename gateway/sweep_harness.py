@@ -96,3 +96,37 @@ def sweep_ttl(traffic_class: TrafficClass, ttl_values: List[float],
                 b.set_ttl(ttl_s=ttl)
         results[ttl] = run_all_policies(bundles, plan)
     return results
+
+
+def compute_triage_breakdown(bundles: List[BundleRecord], plan: ContactPlan) -> Dict[str, Dict[str, Dict[str, int]]]:
+    """Fig 4: for each policy, run once and return the FULL per-class x
+    per-terminal-state count matrix -- breakdown[policy][class][state] = count.
+
+    Unlike delivery_ratio_by_class/starvation_summary (which collapse
+    failure modes into one ratio or partial per-class dicts), this keeps
+    all four TerminalStates (DELIVERED/TTL_EXPIRED/QUEUE_OVERFLOW/
+    NEVER_SCHEDULED) broken out per class -- the distinction
+    TerminalState's own docstring calls "the whole point of this enum"."""
+    breakdown = {}
+    for policy in ALL_POLICIES:
+        run_bundles = [
+            BundleRecord(
+                bundle_id=b.bundle_id, flow_id=b.flow_id,
+                traffic_class=b.traffic_class, size_bytes=b.size_bytes,
+                ingress_ts=b.ingress_ts,
+            ) for b in bundles
+        ]
+        for rb, orig in zip(run_bundles, bundles):
+            rb.set_ttl(ttl_s=orig.expiration_ts - orig.ingress_ts)
+
+        sched = Scheduler(plan, max_queue_bytes=MAX_QUEUE_BYTES, policy=policy)
+        sched.run(run_bundles)
+
+        counts: Dict[str, Dict[str, int]] = {}
+        for b in run_bundles:
+            cls = b.traffic_class.value
+            state = b.terminal_state.value
+            counts.setdefault(cls, {}).setdefault(state, 0)
+            counts[cls][state] += 1
+        breakdown[policy.value] = counts
+    return breakdown
