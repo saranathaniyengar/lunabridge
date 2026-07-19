@@ -22,23 +22,21 @@ for row, (plan_key, row_label) in enumerate([
         ax = axes[row, col]
         ttl_values = sorted(float(t) for t in data[plan_key][tc].keys())
         for p in policies:
-            ys = [data[plan_key][tc][str(t) if str(t) in data[plan_key][tc] else t][p]
-                  if str(t) in data[plan_key][tc] else data[plan_key][tc][t][p]
-                  for t in ttl_values]
+            ys = [data[plan_key][tc][str(t)][p]["own_delivery_ratio"] for t in ttl_values]
             ax.plot(ttl_values, ys, marker="o", label=p, color=colors.get(p), linewidth=1.8, markersize=4)
         ax.axvline(locked_ttls[tc], color="black", linestyle=":", linewidth=1, alpha=0.6)
         ax.set_xscale("log")
-        ax.axhline(0, color="black", linewidth=0.5, linestyle="-", alpha=0.3)
+        ax.set_ylim(-0.05, 1.05)
         ax.grid(alpha=0.25)
         if row == 0:
             ax.set_title(tc.upper(), fontsize=12, fontweight="bold")
         if col == 0:
-            ax.set_ylabel(f"{row_label}\nmission_utility (U)", fontsize=10)
+            ax.set_ylabel(f"{row_label}\n{tc}'s own delivery ratio", fontsize=9)
         if row == 1:
             ax.set_xlabel("TTL (s, log scale)", fontsize=9)
 
 axes[0, -1].legend(loc="upper left", fontsize=7, bbox_to_anchor=(1.02, 1))
-fig.suptitle("Fig 8 -- Mission utility vs. per-class TTL sensitivity (R=20 fixed)", fontsize=14, y=1.01)
+fig.suptitle("Fig 8 -- Per-class delivery ratio vs. that class's own TTL (R=20 fixed)", fontsize=14, y=1.01)
 fig.tight_layout()
 fig.savefig("figures/fig8_ttl_sensitivity.png", dpi=150, bbox_inches="tight")
 print("saved figures/fig8_ttl_sensitivity.png")
