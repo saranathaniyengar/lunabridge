@@ -14,7 +14,10 @@
       25,
       30,
       40,
-      50
+      50,
+      75,
+      100,
+      150
     ],
     "policies": [
       "fifo",
@@ -138,6 +141,33 @@
       "deadline_aware": -9386236.0,
       "utility_aware": 3371874.0,
       "utility_pure": 3381302.0
+    },
+    "75": {
+      "fifo": -11061065.0,
+      "strict_priority": 2708375.0,
+      "wfq": 2697109.0,
+      "wfq_skip_over": 2698483.0,
+      "deadline_aware": -7377084.0,
+      "utility_aware": 2708375.0,
+      "utility_pure": 2727197.0
+    },
+    "100": {
+      "fifo": -11609629.0,
+      "strict_priority": 1876837.0,
+      "wfq": 1850109.0,
+      "wfq_skip_over": 1854215.0,
+      "deadline_aware": -1818712.0,
+      "utility_aware": 1876837.0,
+      "utility_pure": 1871176.0
+    },
+    "150": {
+      "fifo": -11828728.0,
+      "strict_priority": -738399.0,
+      "wfq": -783021.0,
+      "wfq_skip_over": -781263.0,
+      "deadline_aware": -6318059.0,
+      "utility_aware": -738399.0,
+      "utility_pure": -725294.0
     }
   }
 }
