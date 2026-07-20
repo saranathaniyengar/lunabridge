@@ -71,12 +71,12 @@ Every class's deadline was anchored to the *same* orbital-mechanics fact. Change
 
 The fix is grounded in RFC 9171 itself — the standard's own Lifetime field is defined as marking when a bundle's payload *stops being useful*, not as a function of the link. Redesigned per-class, independently:
 
-| Class | New TTL | Reasoning |
-|---|---|---|
-| EMERGENCY | 300s | Ground-escalation window — the truly split-second crew response is onboard and never touches this relay (confirmed by checking a real ISS depressurization procedure, which uses a ~10-minute onboard decision threshold); what crosses the relay is ground notification during an active situation. |
-| TELEMETRY | 3,600s | Tied to sampling cadence, not orbital gap. |
-| SCIENCE_BULK | 57,600s | Buffer-depth × arrival-rate derived, not gap-derived. |
-| MEDIA | 3,600s | General relevance decay — deliberately *not* EVA-specific, since "media could be anything, generated at any time" isn't a claim the taxonomy can defend restricting. |
+| Class | New TTL |
+|---|---|
+| EMERGENCY | 300s |
+| TELEMETRY | 3,600s |
+| SCIENCE_BULK | 57,600s |
+| MEDIA | 3,600s |
 
 ## Seven scheduling policies
 
