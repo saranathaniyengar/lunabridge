@@ -78,6 +78,15 @@ The fix is grounded in RFC 9171 itself — the standard's own Lifetime field is 
 | SCIENCE_BULK | 57,600s |
 | MEDIA | 3,600s |
 
+## The Sample Workload  
+
+| Class | Arrival rate | Size range | Sampling |
+|---|---|---|---|
+| EMERGENCY | ~1 every 10 hours | 64–768 bytes | uniform |
+| TELEMETRY | ~5 per hour | 1–8 KB | uniform |
+| SCIENCE_BULK | ~1 every 2 hours | 1–50 MB | log-uniform |
+| MEDIA | ~1 every 30 minutes | 10–100 KB | uniform |
+
 ## Seven scheduling policies
 
 The scheduler exists because bandwidth during a contact window is finite and multiple traffic classes compete for it. All seven are testable against the identical plan/workload/queue-cap for a real comparison.
