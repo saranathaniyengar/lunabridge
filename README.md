@@ -1,8 +1,7 @@
 # LunaBridge
 
-A 5G-to-DTN gateway for lunar surface communications. A rover uses ordinary 5G, unaware that Earth is only reachable during intermittent satellite contact windows — LunaBridge sits at the network edge, captures that traffic transparently, holds it through blackouts, and forwards it as real DTN bundles once a relay pass opens.
+A 5G-to-DTN gateway for lunar surface communications. A rover uses ordinary 5G, unaware that Earth is only reachable during intermittent satellite contact windows where, LunaBridge sits at the network edge, captures that traffic transparently, holds it through blackouts, and forwards it as real DTN bundles once a relay pass opens.
 
-This document is meant to stand on its own — if you're reading this instead of a slide deck, that's intentional. Everything below actually ran, on a real machine, and most of it broke at least once before it worked.
 
 ## Table of contents
 
@@ -20,9 +19,9 @@ This document is meant to stand on its own — if you're reading this instead of
 
 ## The problem this solves
 
-3GPP 5G assumes continuous backhaul. A lunar relay doesn't provide that — using a real GMAT-propagated 90-day orbit (LCRNS SV-1, single-satellite degraded scenario), the relay is visible for stretches of roughly 25 hours, then drops out for gaps up to 5.56 hours. A rover running stock 5G software has no idea any of this is happening, and nothing in the 3GPP stack is built to survive a multi-hour blackout gracefully.
+3GPP 5G assumes continuous backhaul. A lunar relay doesn't provide that, and therefore, using a real GMAT-propagated 90-day orbit (LCRNS SV-1, single-satellite degraded scenario), the relay is visible for stretches of roughly 25 hours, then drops out for gaps up to 5.56 hours. A rover running stock 5G software has no idea any of this is happening, and nothing in the 3GPP stack is built to survive a multi-hour blackout gracefully.
 
-LunaBridge doesn't touch the rover. It sits at the 5G core's N6 egress — the boundary where the core hands traffic off to "whatever's outside" — and does the translation work there: capture, classify, hold through the gap, forward as a DTN bundle when the link comes back.
+LunaBridge doesn't touch the rover. It sits at the 5G core's N6 egress, which is the boundary where the core hands traffic off to "whatever's outside" and does the translation work there: capture, classify, hold through the gap, forward as a DTN bundle when the link comes back.
 
 ```
 UE (rover) -> gNB -> Open5GS 5G core -> N6 -> LunaBridge -> BPv7 bundle -> uD3TN -> relay -> Earth
@@ -44,7 +43,7 @@ flowchart TD
     Moon -->|CLA mtcp, netem-delayed| Earth["uD3TN earth node"]
 ```
 
-One thing worth being precise about, because it took an embarrassingly long argument with myself to get straight: the packet's actual bytes never change as they move through the Python layers above. They're read once (for DSCP), then carried forward untouched, picking up metadata along the way. The only place real BPv7 encoding happens is inside `uD3TN` itself, in C, the instant `send_adu()` is called. Everything before that is bookkeeping.
+One thing worth being precise about to get straight: the packet's actual bytes never change as they move through the Python layers above. They're read once (for DSCP), then carried forward untouched, picking up metadata along the way. The only place real BPv7 encoding happens is inside `uD3TN` itself, in C, the instant `send_adu()` is called. Everything before that is bookkeeping.
 
 ## Module breakdown
 
@@ -108,23 +107,23 @@ flowchart TD
 
 **WFQ / WFQ_SKIP_OVER** — EMERGENCY always preempts; the rest fair-share via Deficit Round Robin (Shreedhar & Varghese, 1996), weighted 10:1:1. `WFQ_SKIP_OVER` is an experimental variant that scans past a non-fitting head-of-line bundle instead of ending that class's turn for the round — not backed by DRR's original fairness proof, flagged as our own variant.
 
-**DEADLINE_AWARE** — true Earliest-Deadline-First, deliberately with no EMERGENCY exception. This is the important part: it's genuinely urgency-aware but value-blind, and we proved it by hand before trusting it at scale — construct a scenario where a low-value TELEMETRY bundle is marginally more urgent than a high-value EMERGENCY bundle, and EDF will sacrifice the EMERGENCY bundle every time, purely on deadline order. That's not a bug, it's the honest cost of pure deadline scheduling — and it shows up in the full-scale stress-test results too, not just the constructed example.
+**DEADLINE_AWARE** — true Earliest-Deadline-First, deliberately with no EMERGENCY exception. This is the important part: it's genuinely urgency-aware but value-blind, and we proved it by hand before trusting it at scale, where we constructed a scenario where a low-value TELEMETRY bundle is marginally more urgent than a high-value EMERGENCY bundle, and EDF will sacrifice the EMERGENCY bundle every time, purely on deadline order. That's not a bug, it's the honest cost of pure deadline scheduling and it shows up in the full-scale stress-test results too, not just the constructed example.
 
-**UTILITY_AWARE** — the actual contribution. Two tiers: bundles that are *at-risk* (will die before the next contact window opens, regardless of what happens now) get scheduled first, sorted by mission value; everything else gets sorted by value-per-byte. One thing worth being upfront about: a naive "just sort everything by value" collapses into being identical to STRICT_PRIORITY for this project's actual numbers, since value-per-byte never inverts class rank here. The real differentiator isn't the value sort — it's the at-risk gate specifically, which is why it needed the ablation below to actually prove that.
+**UTILITY_AWARE** — the actual contribution. Two tiers: bundles that are *at-risk* (will die before the next contact window opens, regardless of what happens now) get scheduled first, sorted by mission value; everything else gets sorted by value-per-byte. One thing worth being upfront about: a naive "just sort everything by value" collapses into being identical to STRICT_PRIORITY for this project's actual numbers, since value-per-byte never inverts class rank here. The real differentiator isn't the value sort. It's the at-risk gate specifically, which is why it needed the ablation below to actually prove that.
 
 **UTILITY_PURE** — the ablation. Same value-per-byte sort, but with the at-risk gate removed. Built specifically to isolate how much of `UTILITY_AWARE`'s behavior the gate is actually responsible for, not the sorting itself.
 
 ## What the figures actually found
 
-**Bandwidth almost never mattered — and that's itself a real finding.** Under the real 90-day contact plan (10 Mbps link, ~25-hour average window), every one of the seven policies produces *identical* results, at every traffic volume we tested. Not a bug: a single real window can carry 27-111 GB depending on duration, which dwarfs the entire 90-day traffic volume combined. Bandwidth is never the binding constraint in this architecture — the real constraints are TTL-vs-blackout-gap survival and admission/storage capacity, both of which are policy-blind by construction (admission is always ingress-order; blackout expiry runs before any policy-specific logic). This ties directly into the buffer-sizing result below.
+**Bandwidth almost never mattered — and that's itself a real finding.** Under the real 90-day contact plan (10 Mbps link, ~25-hour average window), every one of the seven policies produces *identical* results, at every traffic volume we tested. Not a bug: a single real window can carry 27-111 GB depending on duration, which dwarfs the entire 90-day traffic volume combined. Bandwidth is never the binding constraint in this architecture, the real constraints are TTL-vs-blackout-gap survival and admission/storage capacity, both of which are policy-blind by construction (admission is always ingress-order; blackout expiry runs before any policy-specific logic). This ties directly into the buffer-sizing result below.
 
-**Built a synthetic stress plan specifically to force real contention.** Same real window timing and gaps, link rate artificially capped to 10 kbps — purely to make bandwidth genuinely scarce so policy choice could actually show up in the numbers.
+**Built a synthetic stress plan specifically to force real contention.** Same real window timing and gaps, link rate artificially capped to 10 kbps just to purely to make bandwidth genuinely scarce so policy choice could actually show up in the numbers.
 
 **Under real congestion, the naive policies collapse, exactly as designed to.** FIFO and pure `DEADLINE_AWARE` both degrade sharply as congestion increases, confirming at full simulation scale what the hand-built scenarios predicted — `DEADLINE_AWARE` specifically loses ground because it keeps sacrificing high-value bundles for marginally-more-urgent low-value ones.
 
-**The genuinely surprising result: `UTILITY_PURE` — the simpler ablation — consistently edges out `UTILITY_AWARE` and `STRICT_PRIORITY`, at every congestion level tested.** Not by a huge margin, but consistently, and the gap grows as congestion increases. Worth sitting with, because it's not the result you'd want going in: the simpler design wins. That's a legitimate, honest thing to report rather than force a "our new policy is best" narrative that the data doesn't actually support.
+**The genuinely surprising result: `UTILITY_PURE` — the simpler ablation which consistently edges out `UTILITY_AWARE` and `STRICT_PRIORITY`, at every congestion level tested.** Not by a huge margin, but consistently, and the gap grows as congestion increases. Worth sitting with, because it's not the result you'd want going in: the simpler design wins. That's a legitimate, honest thing to report rather than force a "our new policy is best" narrative that the data doesn't actually support.
 
-**At extreme congestion, admission overflow itself becomes policy-sensitive.** Past a certain point, the queue cap starts genuinely rejecting bundles, and — this took real digging to understand — the *rate* of rejection differs by policy, because a policy that drains its queue more efficiently leaves less backlog, which leaves more room for future admissions, which compounds into a real, measurable advantage. That's a second-order effect that only appears under severe load, not a case we designed for going in.
+**At extreme congestion, admission overflow itself becomes policy-sensitive.** Past a certain point, the queue cap starts genuinely rejecting bundles, and this took real digging to understand the *rate* of rejection differs by policy, because a policy that drains its queue more efficiently leaves less backlog, which leaves more room for future admissions, which compounds into a real, measurable advantage. That's a second-order effect that only appears under severe load, not a case we designed for going in.
 
 **Per-class TTL sensitivity is genuinely class-dependent.** EMERGENCY and TELEMETRY are TTL-bound — tightening their deadline visibly hurts delivery, exactly as intended. SCIENCE_BULK and MEDIA turned out to be bandwidth-bound instead, at the congestion level tested — their bundles are just too large relative to the constrained link for TTL headroom to matter much. Not a failure to find TTL sensitivity everywhere — a real, useful distinction between classes.
 
