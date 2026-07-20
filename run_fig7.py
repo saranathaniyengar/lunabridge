@@ -3,15 +3,11 @@ import numpy as np
 from gateway.workload_generator import CLASS_PARAMS, _generate_class_arrivals
 from gateway.traffic import CLASS_SPECS, TrafficClass
 
-R_VALUES = [1.5, 2.0]
+R_VALUES = [1, 1.5, 2, 5, 10]
 DURATIONS_H = np.arange(0, 6.25, 0.25)
-BUFFER_LIMIT_MB = 256
+BUFFER_LIMIT_BYTES = 256_000_000  # 256 MB, CM4-class
 MAX_DURATION_S = 6.0 * 3600.0
 
-# Separate seed PER CLASS so one class's arrival count can never shift
-# another's draws -- fixes the earlier bug where a single shared rng,
-# reset per duration point, made every duration an unrelated resample
-# instead of a smooth extension of the same timeline.
 CLASS_SEEDS = {
     TrafficClass.EMERGENCY: 1001,
     TrafficClass.TELEMETRY: 1002,
@@ -19,29 +15,74 @@ CLASS_SEEDS = {
     TrafficClass.MEDIA: 1004,
 }
 
-results = {"meta": {"r_values": R_VALUES, "durations_h": DURATIONS_H.tolist(),
-                     "buffer_limit_mb": BUFFER_LIMIT_MB}, "occupancy_mb": {}}
 
-for r in R_VALUES:
-    # Generate each class's FULL 6h arrival sequence once, independently.
+def simulate_capped_buffer(r, checkpoints_s):
+    """Event-driven simulation enforcing a REAL 256MB admission cap --
+    matches Scheduler._try_admit's logic: purge expired bundles first
+    (frees space), then admit the new arrival only if it fits; otherwise
+    reject it as overflow. Walks arrivals in actual chronological order
+    (not snapshot-and-filter) since admission now depends on buffer state
+    at that exact moment, not just "arrived by now"."""
     all_events = []
     for tc, params in CLASS_PARAMS.items():
         rng = np.random.default_rng(CLASS_SEEDS[tc])
         scaled = {**params, "rate_per_h": params["rate_per_h"] * r}
         events = _generate_class_arrivals(rng, tc, scaled, MAX_DURATION_S)
         ttl = CLASS_SPECS[tc].default_ttl_s
-        all_events.extend((t, size, ttl) for t, _, size in events)
+        for t, _, size in events:
+            all_events.append((t, size, t + ttl))
+    all_events.sort(key=lambda e: e[0])
 
-    occ_series = []
-    for d_h in DURATIONS_H:
-        d_s = d_h * 3600.0
-        # Same fixed set of arrivals every time -- just filter to what's
-        # arrived by now and not yet expired, per duration checkpoint.
-        total_bytes = sum(size for (t, size, ttl) in all_events
-                           if t <= d_s and t + ttl > d_s)
-        occ_series.append(total_bytes / 1_000_000)
-    results["occupancy_mb"][str(r)] = occ_series
-    print(f"R={r}: done, max occupancy = {max(occ_series):.1f} MB")
+    active = []
+    occupied = 0
+    overflowed_bytes = 0
+
+    occ_series, overflow_series = [], []
+    checkpoints = list(checkpoints_s)
+    ci = 0
+
+    def purge_expired(now):
+        nonlocal occupied, active
+        still = []
+        for size, exp in active:
+            if exp > now:
+                still.append((size, exp))
+            else:
+                occupied -= size
+        active = still
+
+    for (t, size, exp) in all_events:
+        while ci < len(checkpoints) and checkpoints[ci] < t:
+            purge_expired(checkpoints[ci])
+            occ_series.append(occupied / 1_000_000)
+            overflow_series.append(overflowed_bytes / 1_000_000)
+            ci += 1
+
+        purge_expired(t)
+        if occupied + size <= BUFFER_LIMIT_BYTES:
+            active.append((size, exp))
+            occupied += size
+        else:
+            overflowed_bytes += size
+
+    while ci < len(checkpoints):
+        purge_expired(checkpoints[ci])
+        occ_series.append(occupied / 1_000_000)
+        overflow_series.append(overflowed_bytes / 1_000_000)
+        ci += 1
+
+    return occ_series, overflow_series
+
+
+results = {"meta": {"r_values": R_VALUES, "durations_h": DURATIONS_H.tolist(),
+                     "buffer_limit_mb": 256}, "occupancy_mb": {}, "overflow_mb": {}}
+
+checkpoints_s = DURATIONS_H * 3600.0
+for r in R_VALUES:
+    occ, overflow = simulate_capped_buffer(r, checkpoints_s)
+    results["occupancy_mb"][str(r)] = occ
+    results["overflow_mb"][str(r)] = overflow
+    print(f"R={r}: max occupancy={max(occ):.1f} MB, total overflow={overflow[-1]:.1f} MB")
 
 with open("results/fig7_results.json", "w") as f:
     json.dump(results, f, indent=2)
