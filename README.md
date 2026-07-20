@@ -160,8 +160,7 @@ This is the part that actually required standing up live infrastructure, not jus
 
 ## A note on AI-assisted development
 
-This codebase was built with Claude as a pair-programming collaborator, not as an unsupervised generator. The practical effect worth mentioning: every non-trivial design decision, every assumption, every "why X instead of Y" is documented directly in the source as a comment or docstring — not as an afterthought, but because that discipline was enforced at write-time, every time. If a number in this codebase isn't independently sourced (an EMERGENCY TTL, a bundle size assumption), the code says so explicitly, right next to the number. That's why the comments in `traffic.py` and `scheduler.py` read the way they do — dense, specific, occasionally defensive about a prior wrong assumption getting caught and corrected. That's not filler; that's the actual audit trail of the decisions.
-
+This codebase was built with Claude as a pair-programming collaborator, not as an unsupervised generator. The practical effect worth mentioning: every non-trivial design decision, every assumption, every "why X instead of Y" is documented directly in the source as a comment or docstring and not as an afterthought, but because that discipline was enforced at write-time, every time. If a number in this codebase isn't independently sourced (an EMERGENCY TTL, a bundle size assumption), the code says so explicitly, right next to the number. That's why the comments in `traffic.py` and `scheduler.py` read the way they do (dense, specific, occasionally defensive about a prior wrong assumption getting caught and corrected).
 ## Reproducing this
 
 **Tests** (stdlib `unittest`, no pytest):
@@ -177,7 +176,7 @@ python3 run_fig4.py && python3 plot_fig4.py          # triage map, R=20
 python3 run_fig7.py && python3 plot_fig7.py          # buffer fill during blackout
 python3 run_fig8_sweep.py && python3 plot_fig8.py    # per-class TTL sensitivity
 ```
-Everything uses fixed random seeds — the workload generator uses one seed shared across all four traffic classes, specifically so every scheduling policy is compared against identical traffic, not four separately-lucky random draws.
+Everything uses fixed random seeds — the workload generator uses one seed shared across all four traffic classes, specifically so every scheduling policy is compared against identical traffic, not four separately random draws.
 
 ## Repository layout
 
