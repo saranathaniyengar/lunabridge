@@ -3,7 +3,7 @@ import numpy as np
 from gateway.workload_generator import CLASS_PARAMS, _generate_class_arrivals
 from gateway.traffic import CLASS_SPECS, TrafficClass
 
-R_VALUES = [1, 1.5, 2, 5, 10]
+R_VALUES = [1, 5, 10, 15, 20, 30]
 DURATIONS_H = np.arange(0, 6.25, 0.25)
 BUFFER_LIMIT_BYTES = 256_000_000  # 256 MB, CM4-class
 MAX_DURATION_S = 6.0 * 3600.0
