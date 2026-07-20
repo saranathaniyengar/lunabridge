@@ -114,7 +114,7 @@ flowchart TD
 
 **STRICT_PRIORITY** — fixed rank order, matches how real DTN implementations (ION's CLM) already schedule. The default.
 
-**WFQ / WFQ_SKIP_OVER** — EMERGENCY always preempts; the rest fair-share via Deficit Round Robin (Shreedhar & Varghese, 1996), weighted 10:1:1. `WFQ_SKIP_OVER` is an experimental variant that scans past a non-fitting head-of-line bundle instead of ending that class's turn for the round — not backed by DRR's original fairness proof, flagged as our own variant.
+**WFQ / WFQ_SKIP_OVER** — EMERGENCY always preempts; the rest fair-share via Deficit Round Robin (Shreedhar & Varghese, 1996), weighted 10:1:1. `WFQ_SKIP_OVER` is an experimental variant that scans past a non-fitting head-of-line bundle instead of ending that class's turn for the round; not backed by DRR's original fairness proof, flagged as our own variant.
 
 **DEADLINE_AWARE** — true Earliest-Deadline-First, deliberately with no EMERGENCY exception. This is the important part: it's genuinely urgency-aware but value-blind, and we proved it by hand before trusting it at scale, where we constructed a scenario where a low-value TELEMETRY bundle is marginally more urgent than a high-value EMERGENCY bundle, and EDF will sacrifice the EMERGENCY bundle every time, purely on deadline order. That's not a bug, it's the honest cost of pure deadline scheduling and it shows up in the full-scale stress-test results too, not just the constructed example.
 
