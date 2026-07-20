@@ -67,9 +67,9 @@ The original four TTLs looked reasonable individually, but turned out to be one 
 | TELEMETRY | 47,254s | 2x (exact) |
 | SCIENCE_BULK | 165,389s | 7x (exact) |
 
-Every class's deadline was anchored to the *same* orbital-mechanics fact. Change the contact plan, and all four move together, regardless of whether the underlying traffic got more or less urgent. That's not decoupled — that's a "trivially tied regime," and it meant no scheduling policy comparison could ever show real differentiation, because TTL-vs-gap survival (which is policy-blind by the scheduler's own design) was doing all the work.
+Every class's deadline was anchored to the *same* orbital-mechanics fact. Change the contact plan, and all four move together, regardless of whether the underlying traffic got more or less urgent. That's not decoupled, that's a "trivially tied regime," and it meant no scheduling policy comparison could ever show real differentiation, because TTL-vs-gap survival (which is policy-blind by the scheduler's own design) was doing all the work.
 
-The fix is grounded in RFC 9171 itself — the standard's own Lifetime field is defined as marking when a bundle's payload *stops being useful*, not as a function of the link. Redesigned per-class, independently:
+The fix is grounded in RFC 9171 itself, the standard's own Lifetime field is defined as marking when a bundle's payload *stops being useful*, not as a function of the link. Redesigned per-class, independently:
 
 | Class | New TTL |
 |---|---|
