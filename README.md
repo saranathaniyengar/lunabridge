@@ -47,18 +47,18 @@ One thing worth being precise about to get straight: the packet's actual bytes n
 
 ## Module breakdown
 
-- **`gateway/n6_interceptor.py`** — binds to NFQUEUE, reads DSCP off the raw IP header (`(payload[1] >> 2) & 0x3F` for IPv4; IPv6's Traffic Class is split across two bytes and has to be reassembled first — RFC 8200 splits it as low-nibble-of-byte-0 + high-nibble-of-byte-1, unlike IPv4's clean single byte). Always issues `ACCEPT` in a `finally` block — a parse crash can never wedge the kernel queue.
+- **`gateway/n6_interceptor.py`** — binds to NFQUEUE, reads DSCP off the raw IP header (`(payload[1] >> 2) & 0x3F` for IPv4; IPv6's Traffic Class is split across two bytes and has to be reassembled first — RFC 8200 splits it as low-nibble-of-byte-0 + high-nibble-of-byte-1, unlike IPv4's clean single byte). Always issues `ACCEPT` in a `finally` block ( a parse crash can never wedge the kernel queue ).
 - **`gateway/traffic.py`** — the taxonomy. Four classes (down from an original seven), each with a rank, a utility weight, and a TTL. Single source of truth — everything else imports from here.
-- **`gateway/telemetry.py`** — `BundleRecord`, tracking lifecycle state: `PENDING -> DELIVERED / TTL_EXPIRED / QUEUE_OVERFLOW / NEVER_SCHEDULED`. Explicitly *not* BPv7 encoding — the module docstring says so directly, because it matters: this is internal state, and conflating it with the wire format was an easy mistake to almost make.
-- **`gateway/contact_plan.py`** — `ContactWindow`/`ContactPlan`, loaded from the real GMAT-propagated 90-day contact plan CSV (`start_sec`/`end_sec`/`rate_bps` columns — confirmed these are seconds-since-plan-epoch, not Unix time, by checking that `gap_before_s` for the first row matches `start_sec` almost exactly).
+- **`gateway/telemetry.py`** — `BundleRecord`, tracking lifecycle state: `PENDING -> DELIVERED / TTL_EXPIRED / QUEUE_OVERFLOW / NEVER_SCHEDULED`. Explicitly *not* BPv7 encoding which the module docstring says so directly, because it mattersthat this is internal state, and conflating it with the wire format was an easy mistake to almost make.
+- **`gateway/contact_plan.py`** — `ContactWindow`/`ContactPlan`, loaded from the real GMAT-propagated 90-day contact plan CSV (`start_sec`/`end_sec`/`rate_bps` columns confirmed these are seconds-since-plan-epoch, not Unix time, by checking that `gap_before_s` for the first row matches `start_sec` almost exactly).
 - **`gateway/scheduler.py`** — seven scheduling policies, described below.
-- **`gateway/workload_generator.py`** — Poisson-arrival synthetic traffic, one shared random seed across all four classes so every policy is tested against identical traffic.
+- **`gateway/workload_generator.py`** — Poisson arrival synthetic traffic, one shared random seed across all four classes so every policy is tested against identical traffic.
 - **`gateway/sweep_harness.py`** — runs the scheduler repeatedly across parameter sweeps (congestion multiplier R, per-class TTL) to produce the comparison data behind every figure.
 - **`gateway/bundle_sender.py`** — the actual handoff to uD3TN, over its real AAP2 API.
 
 ## The TTL redesign — and why the original numbers were meaningless
 
-The original four TTLs looked reasonable individually, but turned out to be one number wearing four costumes. All four were exact multiples of the same base value (23627s — the contact plan's max blackout gap plus a 1-hour margin):
+The original four TTLs looked reasonable individually, but turned out to be one number wearing four costumes. All four were exact multiples of the same base value (23627s = the contact plan's max blackout gap plus a 1-hour margin):
 
 | Class | Old TTL | Multiplier |
 |---|---|---|
@@ -128,19 +128,17 @@ flowchart TD
 
 **Built a synthetic stress plan specifically to force real contention.** Same real window timing and gaps, link rate artificially capped to 10 kbps just to purely to make bandwidth genuinely scarce so policy choice could actually show up in the numbers.
 
-**Under real congestion, the naive policies collapse, exactly as designed to.** FIFO and pure `DEADLINE_AWARE` both degrade sharply as congestion increases, confirming at full simulation scale what the hand-built scenarios predicted — `DEADLINE_AWARE` specifically loses ground because it keeps sacrificing high-value bundles for marginally-more-urgent low-value ones.
+**Under real congestion, the naive policies collapse, exactly as designed to.** FIFO and pure `DEADLINE_AWARE` both degrade sharply as congestion increases, confirming at full simulation scale what the hand-built scenarios predicted => `DEADLINE_AWARE` specifically loses ground because it keeps sacrificing high-value bundles for marginally-more-urgent low-value ones.
 
-**The genuinely surprising result: `UTILITY_PURE` — the simpler ablation which consistently edges out `UTILITY_AWARE` and `STRICT_PRIORITY`, at every congestion level tested.** Not by a huge margin, but consistently, and the gap grows as congestion increases. Worth sitting with, because it's not the result you'd want going in: the simpler design wins. That's a legitimate, honest thing to report rather than force a "our new policy is best" narrative that the data doesn't actually support.
+**The genuinely surprising result: `UTILITY_PURE` — the simpler ablation which consistently edges out `UTILITY_AWARE` and `STRICT_PRIORITY`, at every congestion level tested.** Not by a huge margin, but consistently, and the gap grows as congestion increases. 
 
-**At extreme congestion, admission overflow itself becomes policy-sensitive.** Past a certain point, the queue cap starts genuinely rejecting bundles, and this took real digging to understand the *rate* of rejection differs by policy, because a policy that drains its queue more efficiently leaves less backlog, which leaves more room for future admissions, which compounds into a real, measurable advantage. That's a second-order effect that only appears under severe load, not a case we designed for going in.
+**At extreme congestion, admission overflow itself becomes policy-sensitive.** Past a certain point, the queue cap starts genuinely rejecting bundles, and this took real digging to understand the *rate* of rejection differs by policy, because a policy that drains its queue more efficiently leaves less backlog, which leaves more room for future admissions, which compounds into a real, measurable advantage. That's a second-order effect that only appears under severe load.
 
-**Per-class TTL sensitivity is genuinely class-dependent.** EMERGENCY and TELEMETRY are TTL-bound — tightening their deadline visibly hurts delivery, exactly as intended. SCIENCE_BULK and MEDIA turned out to be bandwidth-bound instead, at the congestion level tested — their bundles are just too large relative to the constrained link for TTL headroom to matter much. Not a failure to find TTL sensitivity everywhere — a real, useful distinction between classes.
+**Per-class TTL sensitivity is genuinely class-dependent.** EMERGENCY and TELEMETRY are TTL-bound — tightening their deadline visibly hurts delivery, exactly as intended. SCIENCE_BULK and MEDIA turned out to be bandwidth-bound instead, at the congestion level tested, their bundles are just too large relative to the constrained link for TTL headroom to matter much; Not a failure to find TTL sensitivity everywhere.
 
-**Buffer sizing holds up, until it doesn't.** Simulated buffer occupancy honestly (expired bundles are removed from the running total, not just naively accumulated) shows a 256MB buffer holding comfortably through moderate congestion, then genuinely overflowing past a specific threshold — both regimes are shown, not just the flattering one.
-
+**Buffer sizing holds up, until it doesn't.** Simulated buffer occupancy honestly (expired bundles are removed from the running total, not just naively accumulated) shows a 256MB buffer holding comfortably through moderate congestion, then genuinely overflowing past a specific threshold.
 ## DTN integration — the real story, bugs included
 
-This is the part that actually required standing up live infrastructure, not just Python. Worth documenting the real bugs, since each one cost real time and the fixes are genuinely useful if anyone touches this again.
 
 **Building µD3TN from source hit four real, sequential build failures**, each fixed and verified before moving to the next:
 1. `fatal error: pb.h: No such file or directory` — a shallow `git clone --depth 1` doesn't pull submodules, and nanopb (a real dependency) is one. Fixed with `--recurse-submodules --shallow-submodules`.
@@ -161,6 +159,7 @@ This is the part that actually required standing up live infrastructure, not jus
 ## A note on AI-assisted development
 
 This codebase was built with Claude as a pair-programming collaborator, not as an unsupervised generator. The practical effect worth mentioning: every non-trivial design decision, every assumption, every "why X instead of Y" is documented directly in the source as a comment or docstring and not as an afterthought, but because that discipline was enforced at write-time, every time. If a number in this codebase isn't independently sourced (an EMERGENCY TTL, a bundle size assumption), the code says so explicitly, right next to the number. That's why the comments in `traffic.py` and `scheduler.py` read the way they do (dense, specific, occasionally defensive about a prior wrong assumption getting caught and corrected).
+
 ## Reproducing this
 
 **Tests** (stdlib `unittest`, no pytest):
@@ -203,4 +202,4 @@ figures/                    # rendered PNGs
 
 ## Known issues
 
-Documented in full in `docs/known_issues_dtn.md`. Short version: wiring the interceptor's live callback directly to send real UE traffic as bundles to Earth hits a warning from the AAP2 library (`User-defined creation timestamps are unsupported`) that wasn't fully root-caused before time ran out — despite the offending field being removed from the actual send call, suggesting either the library re-adds it internally or there's a second reference somewhere not yet found. This does **not** undermine the core DTN transport claim, which was independently verified multiple times using µD3TN's own built-in echo mechanism (real bundles, real routing, real 2.56-second round trip, confirmed repeatedly) — it's specifically the "live UE packet all the way to Earth" integration smoke test that remains open.
+Documented in full in `docs/known_issues_dtn.md`. Short version: wiring the interceptor's live callback directly to send real UE traffic as bundles to Earth hits a warning from the AAP2 library (`User-defined creation timestamps are unsupported`) that wasn't fully root-caused before time ran out, despite the offending field being removed from the actual send call, suggesting either the library re-adds it internally or there's a second reference somewhere not yet found. This does **not** undermine the core DTN transport claim, which was independently verified multiple times using µD3TN's own built-in echo mechanism (real bundles, real routing, real 2.56-second round trip, confirmed repeatedly) .It's specifically the "live UE packet all the way to Earth" integration smoke test that remains open.
