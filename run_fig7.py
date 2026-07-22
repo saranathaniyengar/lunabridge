@@ -1,6 +1,8 @@
 import json
 import numpy as np
-from gateway.workload_generator import CLASS_PARAMS, _generate_class_arrivals
+from gateway.workload_generator import (
+    CLASS_PARAMS, _generate_class_arrivals, _generate_media_streams,
+)
 from gateway.traffic import CLASS_SPECS, TrafficClass
 
 R_VALUES = [1, 5, 10, 15, 20, 30]
@@ -31,6 +33,14 @@ def simulate_capped_buffer(r, checkpoints_s):
         ttl = CLASS_SPECS[tc].default_ttl_s
         for t, _, size in events:
             all_events.append((t, size, t + ttl))
+
+    # MEDIA is a continuous CBR video source (not Poisson), so it is generated
+    # separately -- and it now dominates buffer fill during a blackout.
+    media_rng = np.random.default_rng(CLASS_SEEDS[TrafficClass.MEDIA])
+    media_ttl = CLASS_SPECS[TrafficClass.MEDIA].default_ttl_s
+    for t, _, size in _generate_media_streams(media_rng, MAX_DURATION_S, r):
+        all_events.append((t, size, t + media_ttl))
+
     all_events.sort(key=lambda e: e[0])
 
     active = []
