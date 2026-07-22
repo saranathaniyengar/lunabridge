@@ -1,49 +1,55 @@
 """
 gateway/workload_generator.py
 
-Synthetic BundleRecord workload generator for the 6-policy scheduler
-comparison (S2-W6-7). Produces Poisson-arrival traffic for a ~20-device
-surface outpost across the full 90-day LCRNS contact-plan span, for all
-four traffic classes (EMERGENCY, TELEMETRY, SCIENCE_BULK, MEDIA).
+Synthetic BundleRecord workload generator for the 7-policy scheduler
+comparison (S2-W6-7). Produces traffic for a ~20-device surface outpost
+across the full 90-day LCRNS contact-plan span, for all four traffic classes
+(EMERGENCY, TELEMETRY, SCIENCE_BULK, MEDIA).
 
-Design notes (see conversation log for full derivation):
-  - All four classes use the SAME generator mechanism (Poisson arrivals
-    i.e. exponential inter-arrival times) -- only rate and size-range
-    differ per class. MEDIA is deliberately NOT EVA-gated: "media could
-    be anything" (lander video, astronaut photos, at any time) is a
-    claim we can't defend restricting to EVA windows only, so MEDIA is
-    constant-rate like the other three.
-  - SCIENCE_BULK size is drawn log-uniform, not uniform: 1-50MB is a
-    ~50x spread, and uniform sampling would bunch draws near the high
-    end. Log-uniform makes "10x bigger" equally likely across the range.
-  - ingress_ts uses the SAME clock convention as the real contact plan
-    CSV (lcrns_relay_contact_plan_1sv.csv): seconds since the plan's own
-    t=0 epoch, NOT time.time()-style Unix seconds.
-  - One shared rng, one fixed seed, reused across all four classes'
-    draws -- this is what makes "same workload, all 7 policies" a fair
-    comparison rather than each policy facing different random luck.
-  - rate_multiplier (added for the R sweep, Fig 3): scales every class's
-    rate_per_h by this factor. 1.0 = the locked baseline. Checked against
-    real numbers before adding: baseline average offered load is ~13.9
-    kbps against the real 10 Mbps link, nowhere near the figure spec's
-    literal offered/capacity framing -- R is treated as a multiplier on
-    this baseline, not a literal ratio. See gateway/sweep_harness.py.
+Traffic model (revised so offered load matches the Paper 4 traffic model)
+-------------------------------------------------------------------------
+The paper's rate-mismatch result needs the island to offer ~9-13 Mbps so that
+R = lambda_ingress / C_backhaul,eff can exceed 1 against the real ~8 Mbps
+effective backhaul (10 Mbps link x eta_contact). The paper attributes that
+demand to "one or two 1080p feeds [that] dominate".
 
-Rates (per original S2-W6-7 ticket):
-    EMERGENCY     ~1 per 10 h
-    TELEMETRY     ~5 per hour
-    SCIENCE_BULK  ~1 per 2 h
-    MEDIA         ~1 per 30 min (= 2 per hour)
+Earlier this module modeled every class -- MEDIA included -- as Poisson
+arrivals of small discrete bundles. That put MEDIA at ~0.24 bps (55 KB every
+30 min) and the whole workload at ~13.9 kbps: ~700x below the paper's demand,
+and dominated by SCIENCE_BULK, not video. R>1 could then only be reached by
+throttling the backhaul to 10 kbps in sweep_harness (the "stress plan"), which
+contradicts the paper. See git history / the review notes.
 
-Size ranges (per original S2-W6-7 ticket, locked as-is, not re-derived):
-    EMERGENCY     64-768 bytes        (uniform)
-    TELEMETRY     1-8 KB              (uniform)
-    SCIENCE_BULK  1-50 MB             (log-uniform)
-    MEDIA         10-100 KB           (uniform)
+Fix: model MEDIA as it is described -- continuous constant-bit-rate 1080p video
+feeds -- while EMERGENCY / TELEMETRY / SCIENCE_BULK stay Poisson (they are
+genuinely bursty and small). With MEDIA_STREAMS=2 at 6 Mbps each the aggregate
+offered load is ~12 Mbps, so against the real 10 Mbps link (eta_contact~0.82,
+C_eff~8.2 Mbps) R ~= 1.4 emerges NATURALLY -- no stress plan needed. One feed
+gives ~6 Mbps (R just below 1), two give ~12 Mbps (R~1.5), matching the paper's
+"one or two feeds ... 9-13 Mbps". Run the sweep on the REAL contact plan now.
 
-TTLs and link rate are set elsewhere (gateway/traffic.py CLASS_SPECS,
-lcrns_relay_contact_plan_1sv.csv rate_bps) -- this module only produces
-arrival timing and size; rec.set_ttl() pulls TTL from CLASS_SPECS.
+Design notes
+------------
+  - EMERGENCY / TELEMETRY / SCIENCE_BULK: Poisson arrivals (exponential
+    inter-arrival), only rate and size-range differ per class. SCIENCE_BULK
+    size is log-uniform over 1-50 MB so "10x bigger" is equally likely across
+    the range (uniform would bunch draws near 50 MB).
+  - MEDIA: MEDIA_STREAMS concurrent CBR feeds, each emitting one segment every
+    MEDIA_SEGMENT_S seconds of size bitrate*segment/8 bytes. Streams are phase-
+    staggered so their segment boundaries do not arrive in lockstep. This is
+    the only continuous multi-Mbps source; it sets the aggregate offered load.
+  - ingress_ts uses the SAME clock convention as the real contact plan CSV
+    (lcrns_relay_contact_plan_1sv.csv): seconds since the plan's own t=0 epoch.
+  - One shared rng, one fixed seed across all classes -- this is what makes
+    "same workload, all 7 policies" a fair comparison.
+  - rate_multiplier (R sweep, Fig 3): scales BOTH the Poisson rates and the
+    MEDIA aggregate bitrate. Because the baseline now offers ~C_backhaul-worth
+    of traffic, rate_multiplier is a meaningful multiple of the natural R~1
+    operating point, not a multiplier on an irrelevant 13.9 kbps baseline.
+
+TTLs are set elsewhere (gateway/traffic.py CLASS_SPECS); rec.set_ttl() pulls
+TTL from CLASS_SPECS. MEDIA default_ttl_s is 3600 s (a stale video segment is
+worthless), which is the correct semantics for CBR segments.
 """
 
 import itertools
@@ -57,6 +63,7 @@ from gateway.telemetry import BundleRecord
 SPAN_HOURS = 90 * 24
 SPAN_SECONDS = SPAN_HOURS * 3600.0
 
+# --- Bursty classes: Poisson arrivals of small discrete bundles -------------
 CLASS_PARAMS = {
     TrafficClass.EMERGENCY: dict(
         rate_per_h=1 / 10,
@@ -73,12 +80,14 @@ CLASS_PARAMS = {
         size_range=(1_000_000, 50_000_000),
         log_uniform=True,
     ),
-    TrafficClass.MEDIA: dict(
-        rate_per_h=1 / 0.5,  # 1 per 30 min = 2 per hour
-        size_range=(10_000, 100_000),
-        log_uniform=False,
-    ),
 }
+
+# --- MEDIA: continuous CBR 1080p video feeds (dominates offered load) -------
+# "one or two 1080p feeds dominate" -> 2 x 6 Mbps ~= 12 Mbps aggregate.
+MEDIA_STREAMS = 2                 # concurrent feeds (set 1 for the R<1 case)
+MEDIA_BITRATE_BPS = 6_000_000     # ~6 Mbps per 1080p H.265 feed
+MEDIA_SEGMENT_S = 60.0            # one bundle per this many seconds of video
+MEDIA_JITTER = 0.10               # +/-10% VBR size jitter around the CBR mean
 
 
 def _sample_size(rng: np.random.Generator, size_range: Tuple[float, float], log_uniform: bool) -> int:
@@ -108,13 +117,35 @@ def _generate_class_arrivals(
     return events
 
 
+def _generate_media_streams(
+    rng: np.random.Generator,
+    span_seconds: float,
+    rate_multiplier: float,
+) -> List[Tuple[float, TrafficClass, int]]:
+    """MEDIA_STREAMS continuous CBR feeds, phase-staggered, with light VBR
+    jitter. Aggregate mean bitrate = MEDIA_STREAMS * MEDIA_BITRATE_BPS * mult."""
+    events: List[Tuple[float, TrafficClass, int]] = []
+    bitrate = MEDIA_BITRATE_BPS * rate_multiplier
+    mean_seg_bytes = bitrate * MEDIA_SEGMENT_S / 8.0
+    for s in range(MEDIA_STREAMS):
+        phase = rng.uniform(0.0, MEDIA_SEGMENT_S)   # de-synchronise feeds
+        t = phase
+        while t < span_seconds:
+            jitter = 1.0 + rng.uniform(-MEDIA_JITTER, MEDIA_JITTER)
+            size = int(round(mean_seg_bytes * jitter))
+            events.append((t, TrafficClass.MEDIA, max(size, 1)))
+            t += MEDIA_SEGMENT_S
+    return events
+
+
 def generate_workload(seed: int = 42, span_seconds: float = SPAN_SECONDS,
                        rate_multiplier: float = 1.0) -> List[BundleRecord]:
-    """Generate the full synthetic workload: all four classes, merged into
-    one time-ordered stream, as a list of BundleRecords with TTL already set.
+    """Generate the full synthetic workload: the three Poisson classes plus the
+    continuous MEDIA feeds, merged into one time-ordered stream of BundleRecords
+    with TTL already set.
 
-    rate_multiplier: scales every class's rate_per_h by this factor before
-    generating arrivals. 1.0 = locked baseline."""
+    rate_multiplier scales both the Poisson rates and the MEDIA aggregate
+    bitrate. 1.0 = baseline (~12 Mbps offered, R~1.4 on the real 10 Mbps link)."""
     rng = np.random.default_rng(seed)
     bundle_seq = itertools.count(1)
 
@@ -126,6 +157,7 @@ def generate_workload(seed: int = 42, span_seconds: float = SPAN_SECONDS,
     all_events: List[Tuple[float, TrafficClass, int]] = []
     for tc, params in scaled_params.items():
         all_events.extend(_generate_class_arrivals(rng, tc, params, span_seconds))
+    all_events.extend(_generate_media_streams(rng, span_seconds, rate_multiplier))
 
     all_events.sort(key=lambda e: e[0])
 
@@ -145,13 +177,34 @@ def generate_workload(seed: int = 42, span_seconds: float = SPAN_SECONDS,
     return records
 
 
+def expected_offered_load_mbps(rate_multiplier: float = 1.0) -> float:
+    """Analytic mean offered load (Mbps) for the current parameters, so the
+    baseline can be asserted in tests / CI without generating the full stream."""
+    load_bps = MEDIA_STREAMS * MEDIA_BITRATE_BPS * rate_multiplier
+    for params in CLASS_PARAMS.values():
+        lo, hi = params["size_range"]
+        if params["log_uniform"]:
+            mean_bytes = (hi - lo) / np.log(hi / lo)   # log-uniform mean
+        else:
+            mean_bytes = 0.5 * (lo + hi)
+        load_bps += params["rate_per_h"] * rate_multiplier * mean_bytes * 8.0 / 3600.0
+    return load_bps / 1e6
+
+
 if __name__ == "__main__":
+    print(f"Expected mean offered load @ mult=1.0: "
+          f"{expected_offered_load_mbps():.2f} Mbps "
+          f"({MEDIA_STREAMS} x {MEDIA_BITRATE_BPS/1e6:.0f} Mbps MEDIA feeds)\n")
+
     records = generate_workload(seed=42)
-    print(f"Generated {len(records)} bundles across {SPAN_HOURS:.0f}h ({SPAN_HOURS/24:.0f} days)\n")
-    for tc in CLASS_PARAMS:
-        class_records = [r for r in records if r.traffic_class == tc]
-        sizes = [r.size_bytes for r in class_records]
-        expected_count = SPAN_HOURS * CLASS_PARAMS[tc]["rate_per_h"]
-        print(f"  {tc.value:15s}  count={len(class_records):6d}  "
-              f"(expected~{expected_count:.0f})  "
-              f"size min/mean/max = {min(sizes):>10,} / {int(np.mean(sizes)):>10,} / {max(sizes):>10,} bytes")
+    total_bytes = sum(r.size_bytes for r in records)
+    measured_mbps = total_bytes * 8.0 / SPAN_SECONDS / 1e6
+    print(f"Generated {len(records):,} bundles across {SPAN_HOURS:.0f}h "
+          f"({SPAN_HOURS/24:.0f} days); measured mean load {measured_mbps:.2f} Mbps\n")
+    for tc in list(CLASS_PARAMS) + [TrafficClass.MEDIA]:
+        cr = [r for r in records if r.traffic_class == tc]
+        sizes = [r.size_bytes for r in cr]
+        share = sum(sizes) * 8.0 / SPAN_SECONDS / 1e6
+        print(f"  {tc.value:15s}  count={len(cr):8,}  "
+              f"load={share:7.3f} Mbps  "
+              f"size min/mean/max = {min(sizes):>12,} / {int(np.mean(sizes)):>12,} / {max(sizes):>12,} B")
