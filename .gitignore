@@ -59,3 +59,4 @@ runs/
 
 # Local backups
 *.bak
+channel/_stock_grc_reference.py

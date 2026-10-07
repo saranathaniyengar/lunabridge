@@ -1,0 +1,7 @@
+.venv/
+figs/terrain.ply
+figs/*.npz
+__pycache__/
+lola_scene.npz
+figs/connecting_ridge.ply
+figs/*.json
