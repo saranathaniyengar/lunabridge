@@ -1,0 +1,13 @@
+[16:09:07] joint run: 4 UEs, 4 classes
+TEID 0x0000af53  QFI 1  5QI 69
+TEID 0x00009e13  QFI 1  5QI 70
+TEID 0x00002e5f  QFI 1  5QI 9
+TEID 0x0000dd13  QFI 1  5QI 7
+[run] 8 windows, k=720.0, span=1170 s, lifetimes {'emergency': 33, 'telemetry': 66, 'sci_bulk': 230, 'media': 16}; starts in 15 s
+[bridge] contacts configured; qos map {44883: 69, 40467: 70, 11871: 9, 56595: 7}
+[bridge] encapsulated 83774 packets; 0 with unknown TEID
+emergency  5QI 69 QFI [1] L  33s rho 1.18 sent    584 deliv    584 measured 1.000 per-bundle 1.000 closed 1.000
+telemetry  5QI 70 QFI [1] L  66s rho 2.36 sent   4672 deliv   4672 measured 1.000 per-bundle 1.000 closed 1.000
+sci_bulk   5QI  9 QFI [1] L 230s rho 8.21 sent  51206 deliv  50150 measured 0.979 per-bundle 1.000 closed 1.000
+media      5QI  7 QFI [1] L  16s rho 0.57 sent  27312 deliv  25378 measured 0.929 per-bundle 0.942 closed 0.940
+[16:30:28] done joint

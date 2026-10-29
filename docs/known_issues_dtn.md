@@ -45,3 +45,12 @@ BundleADU construction. Root cause not yet isolated -- possibly:
 3. This does NOT block the core DTN integration claim already proven
    above -- only the specific "real live UE packet -> real bundle ->
    confirmed at earth" full-chain smoke test remains open
+
+## µD3TN v0.15 transmit-queue loss (paper Sec. VI-B)
+Source constants behind the live-bridge residual loss: `include/cla/cla.h`
+`CONTACT_TX_TASK_QUEUE_LENGTH 100` (per-link TX queue, bundles) and
+`BUNDLE_SEND_TIMEOUT_MS` (10 ms) used when the bundle processor enqueues a bundle
+for a CLA (`components/ud3tn/bundle_processor.c`); on timeout the bundle is
+deleted with "Forwarding Failed". Evidence: runs/live_5qi/debug_sci_L4
+(3 contacts, 19,107 bundles, 133 failures, all at contact openings).
+Admissibility sweep backing Sec. IV ("within 0.005"): analysis/check_admissibility_sweep.py.

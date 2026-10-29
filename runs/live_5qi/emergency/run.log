@@ -1,0 +1,9 @@
+[12:22:32] class=emergency 5QI=69 ping='-i 2.0 -s 120'
+PDU Session Establishment successful. IP: 10.45.0.2
+TEID 0x0000ecd6  QFI 1  5QI 69
+[run] 8 windows, k=720.0, span=1170 s, lifetimes {'emergency': 33, 'telemetry': 66, 'sci_bulk': 230, 'media': 16}; starts in 15 s
+[bridge] contacts configured; qos map {60630: 69}
+[bridge] encapsulated 584 packets; 0 with unknown TEID
+emergency  5QI 69 QFI [1] L  33s rho 1.18 sent    584 deliv    584 measured 1.000 per-bundle 1.000 closed 1.000
+[12:44:54] done emergency
+command terminated with exit code 137

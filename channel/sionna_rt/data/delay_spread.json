@@ -1,0 +1,175 @@
+{
+ "positions": 40,
+ "positions_with_paths": 17,
+ "median_s": 7.53427181754418e-11,
+ "max_s": 7.268972646023997e-10,
+ "nr_cp_30khz_s": 2.34e-06,
+ "per_position": [
+  {
+   "ground_range_m": 299.20728600754364,
+   "rms_delay_spread_s": 4.346359661067112e-10
+  },
+  {
+   "ground_range_m": 314.84122982862334,
+   "rms_delay_spread_s": 4.260775621212076e-10
+  },
+  {
+   "ground_range_m": 329.6209944769902,
+   "rms_delay_spread_s": 2.7962924944308076e-12
+  },
+  {
+   "ground_range_m": 345.2535300326414,
+   "rms_delay_spread_s": 2.2149185697345475e-12
+  },
+  {
+   "ground_range_m": 360.90164865237176,
+   "rms_delay_spread_s": 5.289103790356853e-12
+  },
+  {
+   "ground_range_m": 375.6660751252367,
+   "rms_delay_spread_s": 3.034930640133382e-11
+  },
+  {
+   "ground_range_m": 391.3118960624632,
+   "rms_delay_spread_s": 4.4925541065055086e-10
+  },
+  {
+   "ground_range_m": 406.07881008493905,
+   "rms_delay_spread_s": 3.9709849297686617e-10
+  },
+  {
+   "ground_range_m": 421.7226576791909,
+   "rms_delay_spread_s": 7.986637740042823e-11
+  },
+  {
+   "ground_range_m": 436.4916952245483,
+   "rms_delay_spread_s": 5.879469688885308e-10
+  },
+  {
+   "ground_range_m": 452.133829745132,
+   "rms_delay_spread_s": 7.268972646023997e-10
+  },
+  {
+   "ground_range_m": 466.9047011971501,
+   "rms_delay_spread_s": 2.852058311741956e-10
+  },
+  {
+   "ground_range_m": 482.5453346577915,
+   "rms_delay_spread_s": 7.53427181754418e-11
+  },
+  {
+   "ground_range_m": 497.31780583445834,
+   "rms_delay_spread_s": 2.0773769857096447e-11
+  },
+  {
+   "ground_range_m": 512.9571132170797,
+   "rms_delay_spread_s": 6.897648251180666e-12
+  },
+  {
+   "ground_range_m": 527.7309920783505,
+   "rms_delay_spread_s": 0.0
+  },
+  {
+   "ground_range_m": 543.3691194758864,
+   "rms_delay_spread_s": 4.994393440482803e-11
+  },
+  {
+   "ground_range_m": 558.1442465886395,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 573.7813172280883,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 588.5575587824865,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 604.1936775571224,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 619.8386886924694,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 634.606177089382,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 650.2499519415592,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 665.0187967268294,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 680.6614430096654,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 695.4315207121402,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 711.0731326663947,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 725.8443359288547,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 741.4849964766652,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 756.2572313703849,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 771.8970138561233,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 786.6701977321882,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 802.3091673413684,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 817.0832270950126,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 827.7982846080317,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 842.5704718301016,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 858.2103471760288,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 872.9833904490966,
+   "rms_delay_spread_s": null
+  },
+  {
+   "ground_range_m": 888.6225295365857,
+   "rms_delay_spread_s": null
+  }
+ ],
+ "config": {
+  "max_depth": 3,
+  "stride": 3,
+  "regolith": "eps'=1.919^1.5, Siegler 2020 tan d",
+  "freq_hz": 2500000000.0
+ }
+}

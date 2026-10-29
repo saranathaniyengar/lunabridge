@@ -1,0 +1,21 @@
+[11:36:34] joint run: 4 UEs, 4 classes
+TEID 0x00001237  QFI 1  5QI 69
+TEID 0x0000faa5  QFI 1  5QI 70
+TEID 0x0000525d  QFI 1  5QI 9
+TEID 0x00004966  QFI 1  5QI 7
+[run] 5 windows, k=720.0, span=721 s, lifetimes {'emergency': 33, 'telemetry': 66, 'sci_bulk': 230, 'media': 16}; starts in 15 s
+[gateway] policy=wfq admission=droptail buffer=2000000 B rate=500000 b/s; qos map {4663: 69, 64165: 70, 21085: 9, 18790: 7}
+[gateway] admitted+forwarded 26711; encapsulated 51617; 0 unknown TEID; queued at end {'emergency': 0, 'telemetry': 0, 'sci_bulk': 1291, 'media': 13}
+  emergency  gateway fates {'fwd': 255, 'drop': 105}
+  telemetry  gateway fates {'fwd': 2006, 'drop': 872}
+  sci_bulk   gateway fates {'fwd': 15548, 'drop': 14691, 'queued_at_end': 1291}
+  media      gateway fates {'fwd': 8902, 'drop': 7879, 'expire': 55, 'queued_at_end': 13}
+emergency  5QI 69 QFI [1] L  33s rho 1.22 sent    360 deliv    255 measured 0.708 per-bundle 1.000 closed 1.000
+telemetry  5QI 70 QFI [1] L  66s rho 2.44 sent   2878 deliv   2006 measured 0.697 per-bundle 1.000 closed 1.000
+sci_bulk   5QI  9 QFI [1] L 230s rho 8.52 sent  31530 deliv  15548 measured 0.493 per-bundle 1.000 closed 1.000
+media      5QI  7 QFI [1] L  16s rho 0.59 sent  16849 deliv   8902 measured 0.528 per-bundle 0.953 closed 0.951
+[11:50:25] done joint
+command terminated with exit code 137
+command terminated with exit code 137
+command terminated with exit code 137
+command terminated with exit code 137

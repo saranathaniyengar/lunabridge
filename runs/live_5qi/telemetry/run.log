@@ -1,0 +1,9 @@
+[12:44:54] class=telemetry 5QI=70 ping='-i 0.25 -s 500'
+PDU Session Establishment successful. IP: 10.45.0.2
+TEID 0x0000f21e  QFI 1  5QI 70
+[run] 8 windows, k=720.0, span=1170 s, lifetimes {'emergency': 33, 'telemetry': 66, 'sci_bulk': 230, 'media': 16}; starts in 15 s
+[bridge] contacts configured; qos map {61982: 70}
+[bridge] encapsulated 4666 packets; 0 with unknown TEID
+telemetry  5QI 70 QFI [1] L  66s rho 2.36 sent   4666 deliv   4666 measured 1.000 per-bundle 1.000 closed 1.000
+[13:05:13] done telemetry
+command terminated with exit code 137

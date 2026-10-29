@@ -225,7 +225,8 @@ class Scheduler:
 
     def __init__(self, plan: ContactPlan, max_queue_bytes: float,
                  policy: SchedulingPolicy = SchedulingPolicy.STRICT_PRIORITY,
-                 priority_aware_admission: bool = True):
+                 priority_aware_admission: Optional[bool] = None,
+                 fifo_skip_over: bool = True):
         if max_queue_bytes <= 0:
             raise ValueError(
                 f"max_queue_bytes ({max_queue_bytes}) must be > 0; a "
@@ -241,7 +242,17 @@ class Scheduler:
         # regardless of class. Set True (default) to enable the DSCP-driven
         # priority-aware admission this project adds. Kept as an explicit knob so
         # the paper can run native-BPv7 vs. the fix on the SAME plan+trace.
+        # None (default) = by policy: on for every class-aware policy, off for
+        # the FIFO floor. An explicit True/False applies to EVERY policy, so
+        # admission and drain can be varied independently (e.g. FIFO drain +
+        # priority-aware admission).
         self.priority_aware_admission = priority_aware_admission
+        # FIFO drain fills each window greedily and, by default, skips a
+        # head-of-line bundle that does not fit the remaining budget to try
+        # later (smaller) ones. fifo_skip_over=False makes FIFO strict: the
+        # window closes at the first bundle that does not fit, as a paced live
+        # link does (link_controller/live_gateway.py).
+        self.fifo_skip_over = fifo_skip_over
         self.decisions: List[SchedulingDecision] = []
 
         # Active queue: bundles that are admitted and still PENDING.
@@ -290,8 +301,9 @@ class Scheduler:
     # bundle survives buffer pressure -- admission protects mission-criticality
     # by rank, drain shares bandwidth by weight.
     def _admission_is_priority_aware(self) -> bool:
-        return (self.priority_aware_admission
-                and self.policy is not SchedulingPolicy.FIFO)
+        if self.priority_aware_admission is None:
+            return self.policy is not SchedulingPolicy.FIFO
+        return self.priority_aware_admission
 
     def _admit_one(self, bundle: BundleRecord, ts: float) -> None:
         bundle.queue_admission_ts = ts
@@ -403,7 +415,7 @@ class Scheduler:
 
     # -- shared drain primitive (S2-W6-7) ------------------------------------
     def _drain_ordered(self, ordered: List[BundleRecord], window: ContactWindow,
-                        reason: str) -> None:
+                        reason: str, stop_on_nonfit: bool = False) -> None:
         """Shared by DEADLINE_AWARE / UTILITY_PURE / (per-tier in
         UTILITY_AWARE): given a list already sorted in the order this
         policy wants to try bundles, drain greedily against the window's
@@ -424,6 +436,8 @@ class Scheduler:
                 self._log(window.start_ts, b, action="defer",
                            reason="insufficient_budget",
                            contact_id=window.contact_id)
+                if stop_on_nonfit:
+                    break
         return remaining_bits
 
     # -- drain: STRICT_PRIORITY (Day 12 v1, unchanged logic) ---------------
@@ -438,7 +452,8 @@ class Scheduler:
         """Zero class-awareness. Sort by ingress_ts only. Deliberate floor
         baseline -- see SchedulingPolicy.FIFO docstring."""
         ordered = sorted(eligible, key=lambda b: b.ingress_ts)
-        self._drain_ordered(ordered, window, reason="fifo")
+        self._drain_ordered(ordered, window, reason="fifo",
+                            stop_on_nonfit=not self.fifo_skip_over)
 
     # -- drain: DEADLINE_AWARE / EDF (S2-W6-7) -------------------------------
     def _drain_edf(self, eligible: List[BundleRecord],
@@ -547,12 +562,6 @@ class Scheduler:
                            reason="insufficient_budget",
                            contact_id=window.contact_id)
 
-        total_weight = sum(CLASS_SPECS[tc].queue_budget for tc in self._WFQ_CLASSES)
-        quanta = {
-            tc: remaining_bits * (CLASS_SPECS[tc].queue_budget / total_weight)
-            for tc in self._WFQ_CLASSES
-        }
-
         by_class: Dict[TrafficClass, List[BundleRecord]] = {
             tc: sorted([b for b in eligible if b.traffic_class is tc],
                        key=lambda b: b.ingress_ts)
@@ -563,57 +572,82 @@ class Scheduler:
         idx = self._rotation_index % n
         order = self._WFQ_CLASSES[idx:] + self._WFQ_CLASSES[:idx]
 
+        # Idle classes do not hoard deficit.
         for tc in order:
-            queue = by_class[tc]
-            if not queue:
+            if not by_class[tc]:
                 self._deficit[tc] = 0.0
-                continue
-            self._deficit[tc] += quanta[tc]
 
-            if not skip_over_deficit:
-                while queue:
-                    head = queue[0]
-                    bits_needed = head.size_bytes * 8
-                    if bits_needed <= self._deficit[tc] and bits_needed <= remaining_bits:
-                        queue.pop(0)
-                        self._deficit[tc] -= bits_needed
-                        remaining_bits -= bits_needed
-                        head.transmission_ts = window.start_ts
-                        head.contact_id = window.contact_id
-                        head.mark(TerminalState.DELIVERED, ts=window.start_ts)
-                        self._active_bytes -= head.size_bytes
-                        self._log(window.start_ts, head, action="transmit",
-                                   reason=f"wfq_{tc.value}",
-                                   contact_id=window.contact_id)
-                    else:
-                        reason = ("insufficient_deficit"
-                                   if bits_needed > self._deficit[tc]
-                                   else "insufficient_budget")
-                        self._log(window.start_ts, head, action="defer",
-                                   reason=reason, contact_id=window.contact_id)
-                        break
-            else:
-                still_queued = []
-                for b in queue:
-                    bits_needed = b.size_bytes * 8
-                    if bits_needed <= self._deficit[tc] and bits_needed <= remaining_bits:
-                        self._deficit[tc] -= bits_needed
-                        remaining_bits -= bits_needed
-                        b.transmission_ts = window.start_ts
-                        b.contact_id = window.contact_id
-                        b.mark(TerminalState.DELIVERED, ts=window.start_ts)
-                        self._active_bytes -= b.size_bytes
-                        self._log(window.start_ts, b, action="transmit",
-                                   reason=f"wfq_skip_{tc.value}",
-                                   contact_id=window.contact_id)
-                    else:
-                        still_queued.append(b)
-                        reason = ("insufficient_deficit"
-                                   if bits_needed > self._deficit[tc]
-                                   else "insufficient_budget")
-                        self._log(window.start_ts, b, action="defer",
-                                   reason=reason, contact_id=window.contact_id)
-                by_class[tc] = still_queued
+        # Work-conserving DRR (Shreedhar & Varghese 1996): rounds repeat within
+        # the window while some backlogged class can still use the remaining
+        # budget. Each round shares the remaining budget among the classes that
+        # are still backlogged, in proportion to their queue_budget weights, so
+        # weighted fairness holds while all classes are backlogged and no
+        # capacity is left idle when some are not. A head-of-line bundle that
+        # exceeds its class's deficit keeps accumulating deficit (within the
+        # window and across windows) until it fits.
+        rnd = 0
+        while remaining_bits > 0:
+            backlogged = [tc for tc in order if by_class[tc]]
+            if not any(by_class[tc][0].size_bytes * 8 <= remaining_bits
+                       for tc in backlogged):
+                break
+            w_total = sum(CLASS_SPECS[tc].queue_budget for tc in backlogged)
+            budget_this_round = remaining_bits
+            for tc in backlogged:
+                self._deficit[tc] += budget_this_round * (
+                    CLASS_SPECS[tc].queue_budget / w_total)
+                queue = by_class[tc]
+                if not skip_over_deficit:
+                    while queue:
+                        head = queue[0]
+                        bits_needed = head.size_bytes * 8
+                        if bits_needed <= self._deficit[tc] and bits_needed <= remaining_bits:
+                            queue.pop(0)
+                            self._deficit[tc] -= bits_needed
+                            remaining_bits -= bits_needed
+                            head.transmission_ts = window.start_ts
+                            head.contact_id = window.contact_id
+                            head.mark(TerminalState.DELIVERED, ts=window.start_ts)
+                            self._active_bytes -= head.size_bytes
+                            self._log(window.start_ts, head, action="transmit",
+                                       reason=f"wfq_{tc.value}",
+                                       contact_id=window.contact_id)
+                        else:
+                            if rnd == 0:
+                                reason = ("insufficient_deficit"
+                                           if bits_needed > self._deficit[tc]
+                                           else "insufficient_budget")
+                                self._log(window.start_ts, head, action="defer",
+                                           reason=reason, contact_id=window.contact_id)
+                            break
+                else:
+                    still_queued = []
+                    for b in queue:
+                        bits_needed = b.size_bytes * 8
+                        if bits_needed <= self._deficit[tc] and bits_needed <= remaining_bits:
+                            self._deficit[tc] -= bits_needed
+                            remaining_bits -= bits_needed
+                            b.transmission_ts = window.start_ts
+                            b.contact_id = window.contact_id
+                            b.mark(TerminalState.DELIVERED, ts=window.start_ts)
+                            self._active_bytes -= b.size_bytes
+                            self._log(window.start_ts, b, action="transmit",
+                                       reason=f"wfq_skip_{tc.value}",
+                                       contact_id=window.contact_id)
+                        else:
+                            still_queued.append(b)
+                            if rnd == 0:
+                                reason = ("insufficient_deficit"
+                                           if bits_needed > self._deficit[tc]
+                                           else "insufficient_budget")
+                                self._log(window.start_ts, b, action="defer",
+                                           reason=reason, contact_id=window.contact_id)
+                    by_class[tc] = still_queued
+                if not by_class[tc]:
+                    self._deficit[tc] = 0.0     # emptied: no hoarding
+            rnd += 1
+            if rnd > 10000:                     # defensive bound
+                break
 
         self._rotation_index = (self._rotation_index + 1) % n
 

@@ -1,0 +1,16 @@
+[
+ {
+  "cls": "sci_bulk",
+  "fiveqi": 9,
+  "qfi": [
+   1
+  ],
+  "L": 230,
+  "rho": 9.583333333333334,
+  "sent": 19107,
+  "delivered": 18974,
+  "measured": 0.9930392002930863,
+  "per_bundle": 1.0,
+  "closed_form": 1.0
+ }
+]

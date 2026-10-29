@@ -1,0 +1,16 @@
+[
+ {
+  "cls": "emergency",
+  "fiveqi": 69,
+  "qfi": [
+   1
+  ],
+  "L": 33,
+  "rho": 1.1785714285714286,
+  "sent": 584,
+  "delivered": 584,
+  "measured": 1.0,
+  "per_bundle": 1.0,
+  "closed_form": 1.0
+ }
+]

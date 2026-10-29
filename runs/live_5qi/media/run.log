@@ -1,0 +1,8 @@
+[13:27:35] class=media 5QI=7 ping='-i 0.04 -s 1400'
+PDU Session Establishment successful. IP: 10.45.0.2
+TEID 0x0000d740  QFI 1  5QI 7
+[run] 8 windows, k=720.0, span=1170 s, lifetimes {'emergency': 33, 'telemetry': 66, 'sci_bulk': 230, 'media': 16}; starts in 15 s
+[bridge] contacts configured; qos map {55104: 7}
+[bridge] encapsulated 28413 packets; 0 with unknown TEID
+media      5QI  7 QFI [1] L  16s rho 0.57 sent  28413 deliv  26431 measured 0.930 per-bundle 0.942 closed 0.940
+[13:47:54] done media

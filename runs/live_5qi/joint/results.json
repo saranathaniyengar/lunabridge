@@ -1,0 +1,58 @@
+[
+ {
+  "cls": "emergency",
+  "fiveqi": 69,
+  "qfi": [
+   1
+  ],
+  "L": 33,
+  "rho": 1.1785714285714286,
+  "sent": 584,
+  "delivered": 584,
+  "measured": 1.0,
+  "per_bundle": 1.0,
+  "closed_form": 1.0
+ },
+ {
+  "cls": "telemetry",
+  "fiveqi": 70,
+  "qfi": [
+   1
+  ],
+  "L": 66,
+  "rho": 2.357142857142857,
+  "sent": 4672,
+  "delivered": 4672,
+  "measured": 1.0,
+  "per_bundle": 1.0,
+  "closed_form": 1.0
+ },
+ {
+  "cls": "sci_bulk",
+  "fiveqi": 9,
+  "qfi": [
+   1
+  ],
+  "L": 230,
+  "rho": 8.214285714285714,
+  "sent": 51206,
+  "delivered": 50150,
+  "measured": 0.9793774167089794,
+  "per_bundle": 1.0,
+  "closed_form": 1.0
+ },
+ {
+  "cls": "media",
+  "fiveqi": 7,
+  "qfi": [
+   1
+  ],
+  "L": 16,
+  "rho": 0.5714285714285714,
+  "sent": 27312,
+  "delivered": 25378,
+  "measured": 0.9291886350322203,
+  "per_bundle": 0.9415275336848272,
+  "closed_form": 0.9401709401709402
+ }
+]

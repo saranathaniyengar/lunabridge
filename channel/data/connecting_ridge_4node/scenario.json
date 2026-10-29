@@ -1,0 +1,130 @@
+{
+  "name": "connecting_ridge_4node",
+  "lunaremu_version": "0.1.0",
+  "physics_source": {
+    "repo": "https://github.com/hariniiisathya-coder/lunar-surface-communication-",
+    "commit": "efe592afff0f7d5f2cb768efd5b3782925077164"
+  },
+  "site": "Site01",
+  "site_name": "Connecting Ridge",
+  "dem": {
+    "product": "PGDA LOLA 5 m/px (Barker et al. 2021)",
+    "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Site01_final_adj_5mpp_surf.tif",
+    "tile_km": 10.0,
+    "pixel_m": 5.0
+  },
+  "freq_hz": 2500000000.0,
+  "rho_g_cm3": 1.5,
+  "snapshots": 601,
+  "step_s": 1.0,
+  "duration_s": 600.0,
+  "placement_budget": {
+    "eirp_dbm": 53.0,
+    "grx_dbi": 2.0,
+    "sens_dbm": -93.8
+  },
+  "nodes": [
+    {
+      "index": 0,
+      "name": "gNB",
+      "role": "gnb",
+      "height_m": 30.0,
+      "static": true,
+      "latlon_start": [
+        -89.43890921454617,
+        -137.14356999445042
+      ],
+      "row": 1094,
+      "col": 885,
+      "placement": "tile_max",
+      "ground_elev_m": 1959.4962158203125
+    },
+    {
+      "index": 1,
+      "name": "UE1_LOS",
+      "role": "ue",
+      "height_m": 2.0,
+      "static": true,
+      "latlon_start": [
+        -89.45677933571606,
+        -135.36893102159974
+      ],
+      "placement": "static_los",
+      "row": 944,
+      "col": 885,
+      "azimuth_deg": 0.0,
+      "distance_m": 750.0,
+      "los": true
+    },
+    {
+      "index": 2,
+      "name": "UE2_fringe",
+      "role": "ue",
+      "height_m": 2.0,
+      "static": true,
+      "latlon_start": [
+        -89.47130897661556,
+        -141.07646641402587
+      ],
+      "placement": "static_fringe",
+      "row": 1094,
+      "col": 1185,
+      "azimuth_deg": 90.0,
+      "distance_m": 1500.0,
+      "los": false
+    },
+    {
+      "index": 3,
+      "name": "UE3_rover",
+      "role": "ue",
+      "height_m": 2.0,
+      "static": false,
+      "latlon_start": [
+        -89.44670208312637,
+        -137.7659366106418
+      ],
+      "placement": "rover_shadow",
+      "azimuth_deg": 80.0,
+      "start_m": 300.0,
+      "length_m": 600.0,
+      "speed_mps": 1.0,
+      "track_los_fraction": 0.4132231404958678
+    }
+  ],
+  "colosseum": {
+    "file": "RFscenario.mat",
+    "taps_per_link": [
+      1,
+      1
+    ],
+    "path_loss_db_written": [
+      86.95522363104337,
+      174.2046419601131
+    ],
+    "outage_fraction_offdiag": 0.3333333333333333,
+    "gated_max_pl_db": 180.0,
+    "delay_convention": "excess delay; first tap at 10 ns"
+  },
+  "lchem": {
+    "file": "lchem_frames.json",
+    "mode": "complex16",
+    "node_ids": {
+      "0": "gNB",
+      "2": "UE1_LOS",
+      "4": "UE2_fringe",
+      "6": "UE3_rover"
+    },
+    "links_per_frame": 6,
+    "shiftright_bits": [
+      12,
+      12
+    ],
+    "rf_residual_db": [
+      13.79287486047437,
+      101.04229318954408
+    ],
+    "outage_fraction": 0.0,
+    "gated_max_pl_db": 180.0
+  },
+  "reciprocity": "i->j channel equals j->i (symmetric two-ray and Deygout)"
+}

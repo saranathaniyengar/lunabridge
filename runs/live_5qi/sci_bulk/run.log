@@ -1,0 +1,9 @@
+[13:05:13] class=sci_bulk 5QI=9 ping='-i 0.02 -s 1400'
+PDU Session Establishment successful. IP: 10.45.0.2
+TEID 0x00003b1a  QFI 1  5QI 9
+[run] 8 windows, k=720.0, span=1170 s, lifetimes {'emergency': 33, 'telemetry': 66, 'sci_bulk': 230, 'media': 16}; starts in 15 s
+[bridge] contacts configured; qos map {15130: 9}
+[bridge] encapsulated 51744 packets; 0 with unknown TEID
+sci_bulk   5QI  9 QFI [1] L 230s rho 8.21 sent  51744 deliv  51185 measured 0.989 per-bundle 1.000 closed 1.000
+[13:27:35] done sci_bulk
+command terminated with exit code 137

@@ -1,0 +1,6 @@
+[16:07:01] start-up attempt 1
+  srs-ue1-du1-0: 1 RA, PDU Session Establishment successful. IP: 10.45.0.2
+  srs-ue2-du1-0: 2 RA, PDU Session Establishment successful. IP: 10.45.0.3
+  srs-ue3-du1-0: 3 RA, PDU Session Establishment successful. IP: 10.45.0.4
+  srs-ue4-du1-0: 4 RA, PDU Session Establishment successful. IP: 10.45.0.5
+ALL_ATTACHED

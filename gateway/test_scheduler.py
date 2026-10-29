@@ -347,30 +347,84 @@ class TestSchedulingPolicies(unittest.TestCase):
         self.assertIn("wfq_media", transmit_decisions["media-1"].reason)
 
     def test_wfq_deficit_carries_over_across_windows(self):
-        """A SCIENCE_BULK bundle too big for one window's quantum share
-        still gets sent once TWO windows' worth of quantum has
-        accumulated -- proving deficit carryover, not permanent
-        skip-over."""
+        """Under contention, a SCIENCE_BULK bundle larger than its weighted
+        share of window w0 is deferred (TELEMETRY, weight 10, uses w0's
+        budget) and is sent in w1 once its deficit has accumulated --
+        deficit carryover, not permanent skip-over."""
+        plan = ContactPlan([
+            ContactWindow(contact_id="w0", start_ts=0.0, end_ts=100.0, link_rate_bps=200.0),
+            ContactWindow(contact_id="w1", start_ts=200.0, end_ts=300.0, link_rate_bps=200.0),
+        ])
+        sched = Scheduler(plan, max_queue_bytes=1_000_000,
+                           policy=SchedulingPolicy.WFQ)
+        # w0 budget 20,000 bits; TELEMETRY backlog of 10 x 2,000 bits fills it
+        telemetry = []
+        for i in range(10):
+            b = BundleRecord(f"tel-{i}", "f1", TrafficClass.TELEMETRY,
+                             size_bytes=250, ingress_ts=0.0)
+            b.set_ttl(); telemetry.append(b)
+        sci_bulk = BundleRecord("sci-1", "f2", TrafficClass.SCIENCE_BULK,
+                                 size_bytes=1500, ingress_ts=0.0)   # 12,000 bits
+        sci_bulk.set_ttl()
+
+        sched.run(telemetry + [sci_bulk])
+
+        self.assertTrue(all(b.terminal_state is TerminalState.DELIVERED for b in telemetry))
+        self.assertTrue(all(b.contact_id == "w0" for b in telemetry))
+        self.assertEqual(sci_bulk.terminal_state, TerminalState.DELIVERED)
+        self.assertEqual(sci_bulk.contact_id, "w1")
+        sci_decisions = [d for d in sched.decisions if d.bundle_id == "sci-1"]
+        self.assertEqual(sci_decisions[0].action, "defer")
+        self.assertEqual(sci_decisions[0].reason, "insufficient_deficit")
+        self.assertEqual(sci_decisions[-1].action, "transmit")
+
+    def test_wfq_is_work_conserving(self):
+        """Standard DRR is work-conserving: a class alone in a window gets the
+        whole link, even if its head bundle exceeds its first-round weighted
+        share. (The earlier single-round variant left the link idle and sent
+        this bundle a full contact later.)"""
         plan = ContactPlan([
             ContactWindow(contact_id="w0", start_ts=0.0, end_ts=100.0, link_rate_bps=800.0),
             ContactWindow(contact_id="w1", start_ts=200.0, end_ts=300.0, link_rate_bps=800.0),
         ])
         sched = Scheduler(plan, max_queue_bytes=1_000_000,
                            policy=SchedulingPolicy.WFQ)
-
         sci_bulk = BundleRecord("sci-1", "f1", TrafficClass.SCIENCE_BULK,
-                                 size_bytes=1500, ingress_ts=0.0)
+                                 size_bytes=1500, ingress_ts=0.0)   # 12,000 of 80,000 bits
         sci_bulk.set_ttl()
-
         sched.run([sci_bulk])
-
         self.assertEqual(sci_bulk.terminal_state, TerminalState.DELIVERED)
-        self.assertEqual(sci_bulk.contact_id, "w1")
+        self.assertEqual(sci_bulk.contact_id, "w0")
 
-        sci_decisions = [d for d in sched.decisions if d.bundle_id == "sci-1"]
-        self.assertEqual(sci_decisions[0].action, "defer")
-        self.assertEqual(sci_decisions[0].reason, "insufficient_deficit")
-        self.assertEqual(sci_decisions[1].action, "transmit")
+    def test_wfq_fills_contact_like_strict_priority(self):
+        """Work conservation under contention: when the backlog exceeds the
+        contact, WFQ may pick DIFFERENT bundles than strict priority, but it
+        must send the same number of bits -- the link never idles while any
+        class still has a bundle that fits."""
+        def backlog():
+            out = []
+            for cls, n in [(TrafficClass.TELEMETRY, 20),
+                           (TrafficClass.SCIENCE_BULK, 20),
+                           (TrafficClass.MEDIA, 20)]:
+                for i in range(n):
+                    b = BundleRecord(f"{cls.value}-{i}", cls.value, cls,
+                                     size_bytes=100, ingress_ts=0.0)
+                    b.set_ttl(); out.append(b)
+            return out
+        plan = ContactPlan([   # 24,000 bits = 30 of the 60 bundles
+            ContactWindow(contact_id="w0", start_ts=0.0, end_ts=100.0, link_rate_bps=240.0),
+        ])
+        sent = {}
+        for pol in (SchedulingPolicy.STRICT_PRIORITY, SchedulingPolicy.WFQ):
+            recs = backlog()
+            Scheduler(plan, max_queue_bytes=1_000_000, policy=pol).run(recs)
+            sent[pol] = [b for b in recs if b.terminal_state is TerminalState.DELIVERED]
+        self.assertEqual(len(sent[SchedulingPolicy.STRICT_PRIORITY]), 30)
+        self.assertEqual(len(sent[SchedulingPolicy.WFQ]), 30)
+        # strict sends all 20 TELEMETRY + 10 SCIENCE_BULK, no MEDIA; WFQ shares
+        wfq_media = [b for b in sent[SchedulingPolicy.WFQ]
+                     if b.traffic_class is TrafficClass.MEDIA]
+        self.assertGreater(len(wfq_media), 0)
 
     def test_deadline_aware_saves_at_risk_bundle_strict_priority_loses(self):
         """S2-W6-7. Proves DEADLINE_AWARE (true EDF) genuinely differs from
@@ -635,6 +689,45 @@ class TestPriorityAwareAdmission(unittest.TestCase):
         self.assertEqual(emergency.terminal_state, TerminalState.QUEUE_OVERFLOW)
         self.assertFalse(any(d.reason == "evicted_by_priority"
                              for d in sched.decisions))
+
+    def test_strict_fifo_does_not_skip_over(self):
+        """fifo_skip_over=False: a small bundle behind a head that does not
+        fit the window waits, as on a paced link; the default skips over."""
+        plan = ContactPlan([
+            ContactWindow(contact_id="w0", start_ts=0.0, end_ts=1.0, link_rate_bps=8000.0),
+            ContactWindow(contact_id="w1", start_ts=10.0, end_ts=11.0, link_rate_bps=16000.0),
+        ])
+        def run(skip):
+            big = BundleRecord("big", "f1", TrafficClass.SCIENCE_BULK, size_bytes=1500, ingress_ts=0.0)
+            small = BundleRecord("small", "f2", TrafficClass.EMERGENCY, size_bytes=100, ingress_ts=0.0)
+            a = BundleRecord("a", "f1", TrafficClass.SCIENCE_BULK, size_bytes=600, ingress_ts=-1.0)
+            for b in (big, small, a):
+                b.set_ttl(3600.0)
+            Scheduler(plan, max_queue_bytes=1_000_000, policy=SchedulingPolicy.FIFO,
+                      fifo_skip_over=skip).run([a, big, small])
+            return small.contact_id
+        self.assertEqual(run(True), "w0")    # skips the 1500 B head
+        self.assertEqual(run(False), "w1")   # waits behind it
+
+    def test_explicit_flag_decouples_admission_from_drain(self):
+        """An explicit priority_aware_admission=True applies to FIFO too, so
+        admission and drain can be varied independently: FIFO drain with
+        priority-aware admission evicts MEDIA for a later EMERGENCY, while the
+        default (None) keeps FIFO class-blind."""
+        def run(flag):
+            kw = {} if flag is None else {"priority_aware_admission": flag}
+            sched = Scheduler(self._one_big_window(), max_queue_bytes=1000,
+                              policy=SchedulingPolicy.FIFO, **kw)
+            media = BundleRecord("media-1", "f1", TrafficClass.MEDIA,
+                                 size_bytes=600, ingress_ts=0.0)
+            media.set_ttl()
+            emergency = BundleRecord("emg-1", "f2", TrafficClass.EMERGENCY,
+                                     size_bytes=600, ingress_ts=1.0)
+            emergency.set_ttl()
+            sched.run([media, emergency])
+            return emergency.terminal_state
+        self.assertEqual(run(None), TerminalState.QUEUE_OVERFLOW)
+        self.assertEqual(run(True), TerminalState.DELIVERED)
 
     def test_emergency_protected_under_buffer_pressure_real_plan(self):
         """End-to-end on the real LCRNS 1-SV plan: a tight buffer fills with

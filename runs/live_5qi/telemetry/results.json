@@ -1,0 +1,16 @@
+[
+ {
+  "cls": "telemetry",
+  "fiveqi": 70,
+  "qfi": [
+   1
+  ],
+  "L": 66,
+  "rho": 2.357142857142857,
+  "sent": 4666,
+  "delivered": 4666,
+  "measured": 1.0,
+  "per_bundle": 1.0,
+  "closed_form": 1.0
+ }
+]
